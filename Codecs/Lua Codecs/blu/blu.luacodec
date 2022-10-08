@@ -1,0 +1,16 @@
+version = { 1, 2, 0 }
+
+function remote_supported_control_surfaces()
+  return {
+    {
+      manufacturer    = 'blu',
+      model           = 'LaunchPad',
+      source          = 'blu_remote_source.lua',
+      in_ports        = { { description = 'In  Port' } },
+      out_ports       = { { description = 'Out Port', optional = false } },
+      setup_info_text = [[
+          v2 Alpha
+      ]],
+    },
+  }
+end
