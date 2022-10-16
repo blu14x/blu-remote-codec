@@ -6,6 +6,7 @@
 │                                      │
 │                 for:                 │
 │          Novation Launchpad          │
+│              Livid DS1               │
 │                                      │
 │  created and tested with Reason v12  │
 │                                      │
@@ -17,8 +18,6 @@
 
 -- REMOTE EXTENSION FRAMEWORK
 do
-  --Remote Extension Framework v1.0.1
-
   -- Class
   do
     --[[
@@ -133,15 +132,18 @@ do
     end
     setmetatable(Class, mt)
   end
-  -- UTIL
+  -- Utility
   do
     err          = {
-      base       = function(typePrefix, message, level)
-        error(string.format('\n%s:\n%s', typePrefix, message), (level or 1) + 1)
+      base             = function(typePrefix, message, level)
+        error(str.f('\n%s:\n%s', typePrefix, message), (level or 1) + 1)
       end,
-      keyMissing = function(key, level)
-        local errorMessage = string.format('Expected key "%s" in table.', key)
+      keyMissing       = function(key, level)
+        local errorMessage = str.f('Expected key "%s" in table.', key)
         err.base('Key Missing', errorMessage, (level or 1) + 2)
+      end,
+      programmingError = function(errorMessage, level)
+        err.base('Programming Error', errorMessage, (level or 1) + 2)
       end,
     }
     asrt         = {
@@ -151,8 +153,8 @@ do
         for _, argType in ipairs(expectedType) do
           if valType == argType then return end
         end
-        local errorMessage = string.format('"%s" expected "%s" to be of the type %s, but got %s.',
-                                           funcName, argName, table.concat(expectedType, ', '), valType)
+        local errorMessage = str.f('"%s" expected "%s" to be of the type %s, but got %s.',
+                                   funcName, argName, table.concat(expectedType, ', '), valType)
         err.base('Wrong Type', errorMessage, (level or 1) + 2)
       end
     }
@@ -165,7 +167,7 @@ do
       toHex   = function(n)
         -- return the Base 16 String (Zero-padded with 2 Characters) of a Base 10 Integer (num)
         asrt.argType(n, 'number', 'num.toHex', 'n')
-        return string.format("%02x", n)
+        return str.f("%02x", n)
       end,
       round   = function(n, decimals)
         -- round a number (num) to the given (decimals)
@@ -176,7 +178,8 @@ do
       end,
     }
     str          = {
-      crop  = function(s, len, args)
+      f          = string.format, -- shorthand
+      crop       = function(s, len, args)
         -- limit a String (str) to a specific length (len)
         asrt.argType(s, 'string', 'str.crop', 's')
         asrt.argType(len, 'number', 'str.crop', 'len')
@@ -186,15 +189,15 @@ do
         local alignRight     = obj.get(args, 'alignRight', false, false)
 
         local formattingFlag = alignRight and "" or "-"
-        local formatString   = string.format("%%%s%s.%ss", formattingFlag, len, len)
-        return string.format(formatString, s)
+        local formatString   = str.f("%%%s%s.%ss", formattingFlag, len, len)
+        return str.f(formatString, s)
       end,
-      strip = function(s)
+      strip      = function(s)
         -- removes leading and trailing spaces of a String (str)
         asrt.argType(s, 'string', 'str.strip', 's')
         return s:match("^%s*(.-)%s*$")
       end,
-      split = function(s, args)
+      split      = function(s, args)
         -- returns an Array of Substrings of a String (str)
         asrt.argType(s, 'string', 'str.split', 's')
         args             = args or {}
@@ -203,6 +206,12 @@ do
         for sub in string.gmatch(s, "([^" .. sep .. "]+)") do table.insert(substrings, sub) end
         return substrings
       end,
+      startsWith = function(s, start)
+        return s:sub(1, #start) == start
+      end,
+      endsWith   = function(s, ending)
+        return s:sub(-#ending) == ending
+      end
     }
     tbl          = {
       print       = function(t, depth, indent)
@@ -306,6 +315,19 @@ do
         elseif raiseKeyMissing then err.keyMissing(key) end
         return default
       end,
+      pop      = function(o, key, raiseKeyMissing, default)
+        -- gets the value of an Object (o) by key and  removes it from the Object
+        asrt.argType(o, 'table', 'obj.pop', 'o')
+        asrt.argType(key, 'string', 'obj.pop', 'key')
+        asrt.argType(raiseKeyMissing, 'boolean', 'obj.pop', 'raiseKeyMissing')
+
+        if obj.hasKey(o, key) then
+          local value = o[key]
+          o[key]      = nil
+          return value
+        elseif raiseKeyMissing then err.keyMissing(key) end
+        return default
+      end
     }
     arr          = {
       length           = function(a)
@@ -419,14 +441,14 @@ do
     end
     assertEquals = function(expected, actual)
       if expected ~= actual then
-        local _expected    = type(expected) == 'string' and string.format('"%s"', expected) or expected
-        local _actual      = type(actual) == 'string' and string.format('"%s"', actual) or actual
-        local errorMessage = string.format("expected:  %s\nactual:       %s", _expected, _actual)
+        local _expected    = type(expected) == 'string' and str.f('"%s"', expected) or expected
+        local _actual      = type(actual) == 'string' and str.f('"%s"', actual) or actual
+        local errorMessage = str.f("expected:  %s\nactual:       %s", _expected, _actual)
         err.base('Assertion Error', errorMessage, 2)
       end
     end
   end
-  -- MIDI
+  -- Midi
   do
     midi = {
       -- Midi Specs and Functions
@@ -464,139 +486,87 @@ do
       end
     }
   end
-  -- CODEC
-  do
-    codec = {
-      midiQueue        = {},
-      const            = {
-        remoteBaseChannelStep = 8
-      },
-      now              = function()
-        return remote.get_time_ms()
-      end,
-      sendMidi         = function(args)
-        -- adds a midi message to the midi queue
-        local message          = obj.get(args, 'message', true)
-        local delayMS          = obj.get(args, 'delayMS', false, 0)
-        local overridePrevious = obj.get(args, 'overridePrevious', false, false)
-
-        local timeStamp        = codec.now() + delayMS
-        local indexOfPrevious
-        if overridePrevious then
-          for i, queueItem in ipairs(codec.midiQueue) do
-            if arr.equals(queueItem.message, message) then
-              indexOfPrevious = i
-              break
-            end
-          end
-        end
-
-        if indexOfPrevious then
-          codec.midiQueue[indexOfPrevious].timeStamp = timeStamp
-        else
-          local newQueueItem = { message = message, timeStamp = timeStamp }
-          table.insert(codec.midiQueue, newQueueItem)
-        end
-      end,
-      processMidiQueue = function()
-        -- returns all midi messages which are due to be delivered & removes them from the queue
-        local retEvents        = {}
-        local updatedMidiQueue = {}
-        for _, queueItem in ipairs(codec.midiQueue) do
-          if codec.now() >= queueItem.timeStamp then
-            table.insert(retEvents, queueItem.message)
-          else
-            table.insert(updatedMidiQueue, queueItem)
-          end
-        end
-        codec.midiQueue = updatedMidiQueue
-        return retEvents
-      end
-    }
-  end
-  -- CALLBACKS
+  -- Callbacks
   do
     local callbacks = {
-      init         = function(manufacturer, model)
+      init             = function(manufacturer, model)
         _G["SURFACE"] = getSurface(manufacturer, model)
 
         remote.define_items(SURFACE:getRemoteItems())
         remote.define_auto_inputs(SURFACE:getRemoteAutoInputs())
         remote.define_auto_outputs(SURFACE:getRemoteAutoOutputs())
       end,
-      set_state    = function(changedItems)
+      set_state        = function(changedItems)
         -- Handle individual changed item
         for _, index in ipairs(changedItems) do
-          local item = SURFACE.items[index]
-          if item.handleOutput then item:handleOutput() end
+          SURFACE.items[index]:setState()
         end
 
         -- Collect changed items by group
-        local changedGroupItems = {}
+        local changedItemsPerGroup = {}
         for groupName, groupItems in pairs(SURFACE.itemGroups) do
-          changedGroupItems[groupName] = arr.intersects(groupItems, changedItems)
+          changedItemsPerGroup[groupName] = arr.intersects(groupItems, changedItems)
         end
 
         -- Collect new ScriptItem states
-        local newScriptItemStates = {}
+        local newScriptStates = {}
         for _, index in ipairs(SURFACE.itemGroups.ScriptItems) do
           if arr.hasValue(changedItems, index) then
-            local scriptItemName                = SURFACE.items[index].name
-            newScriptItemStates[scriptItemName] = SURFACE.state[scriptItemName]
+            local internalName            = SURFACE.items[index].internalName
+            newScriptStates[internalName] = SURFACE.scriptState[internalName]
           end
         end
 
         -- Run custom changed_items logic
-        if SURFACE.handleChangedItems then
-          SURFACE:handleChangedItems(changedItems, changedGroupItems, newScriptItemStates)
-        end
+        SURFACE:setState(changedItems, changedItemsPerGroup, newScriptStates)
       end,
-      process_midi = function(_event)
-        local event = {}
-        for k, v in pairs(_event) do
-          -- Fix Remote bug which causes new events to be instantiated incorrectly.
-          if type(k) ~= "number" or k <= _event.size then
-            event[k] = v
+      process_midi     = function(event)
+        local _event = {}
+        for k, v in pairs(event) do
+          -- Fix a bug of remote which causes new events to be instantiated incorrectly.
+          if type(k) ~= "number" or k <= event.size then
+            _event[k] = v
           end
         end
 
+        local messages, handled = {}, false
+
         --   SYSEX Events
-        if event[1] == midi.sysexStart and event[event.size] == midi.sysexEnd then
-          return SURFACE:handleSysexEvent(event)
+        if _event[1] == midi.sysexStart and _event[_event.size] == midi.sysexEnd then
+          messages, handled = SURFACE:processSysexEvent(_event)
 
           -- Other Events
         else
-          local index, midi = SURFACE:translateMidiEvent(event)
-          if index then
-            local item = SURFACE.items[index]
-            if item.handleInput then
-              local messages, handled = item:handleInput(midi)
-              for _, message in ipairs(messages) do
-                remote.handle_input({
-                                      time_stamp = event.time_stamp,
-                                      item       = message.item,
-                                      value      = message.value,
-                                      note       = message.note,
-                                      velocity   = message.velocity
-                                    })
-              end
-              return handled
-            end
-          end
+          local item, midi = SURFACE:translateMidiEvent(_event)
+          if item then messages, handled = item:processMidi(midi) end
         end
+
+        -- handle messages
+        for _, message in ipairs(messages) do
+          message.time_stamp = _event.time_stamp
+          remote.handle_input(message)
+        end
+
+        return handled
       end,
-      deliver_midi = function(maxbytes, port)
+      deliver_midi     = function(maxbytes, port)
         -- Use Remote's regular call interval of deliver_midi for surface-specific "tick" functions
-        if SURFACE.tick then SURFACE:tick(codec.now()) end
+        SURFACE:tick(remote.get_time_ms())
 
         -- Return all due midi messages
-        return codec.processMidiQueue()
+        return SURFACE:processMidiQueue()
       end,
-      --on_auto_input              = function() end,
-      --prepare_for_use            = function() end,
+      on_auto_input    = function(item_index)
+        SURFACE.items[item_index]:onAutoInput()
+      end,
       --probe                      = function() end,
-      --release_from_use           = function() end,
       --supported_control_surfaces = function() end
+      prepare_for_use  = function()
+        return SURFACE:prepareForUse()
+      end,
+      release_from_use = function()
+        return SURFACE:releaseFromUse()
+      end,
     }
 
     for name, func in pairs(callbacks) do
@@ -608,39 +578,19 @@ do
   do
     ControlSurface = Class()
     function ControlSurface:__classname() return 'ControlSurface' end
-    function ControlSurface:construct()
-      self.items      = {}
-      self.itemGroups = {}
-      self.state      = {}
-    end
-    function ControlSurface:addItem(args)
-      local item   = obj.get(args, 'item', true)
-      local groups = obj.get(args, 'groups', false, {})
-
-      if item.index then
-        local errorMessage = string.format('The Item "%s" was already added to the Surface', item.name)
-        err.base('Item Already Added', errorMessage)
-      end
-
-      table.insert(self.items, item)
-      item.index   = arr.length(self.items)
-      item.surface = self
-      item.groups  = groups
-
-      for _, groupName in ipairs(groups) do
-        if not obj.hasKey(self.itemGroups, groupName) then
-          self.itemGroups[groupName] = {}
-        end
-        table.insert(self.itemGroups[groupName], item.index)
-      end
-    end
-    function ControlSurface:addScriptItem(name)
-      local scriptItem = ScriptItem { name = name }
-      self:addItem { item = scriptItem, groups = { 'ScriptItems' } }
-      self.state[scriptItem.name .. '_prev'] = ''
-      self.state[scriptItem.name]            = ''
-    end
     function ControlSurface:repr() return 'ControlSurface' end
+    function ControlSurface:construct()
+      self.items       = {}
+      self.itemGroups  = {
+        ScriptItems  = {},
+        VirtualItems = {},
+      }
+      self.midiQueue   = {}
+      self.scriptState = {}
+    end
+    function ControlSurface:addItem(itemClass, itemKwargs)
+      return itemClass(self, itemKwargs)
+    end
     function ControlSurface:getItemByName(itemName)
       for _, item in ipairs(self.items) do
         if item.name == itemName then
@@ -651,18 +601,14 @@ do
     end
     function ControlSurface:getRemoteItems()
       local remoteItems = {}
-      for _, item in ipairs(self.items) do
-        table.insert(remoteItems, item:getRemoteItem())
-      end
+      for _, item in ipairs(self.items) do table.insert(remoteItems, item:getRemoteItem()) end
       return remoteItems
     end
     function ControlSurface:getRemoteAutoInputs()
       local autoInputs = {}
       for _, item in ipairs(self.items) do
         local autoInput = item:getRemoteAutoInput()
-        if autoInput then
-          table.insert(autoInputs, autoInput)
-        end
+        if autoInput then table.insert(autoInputs, autoInput) end
       end
       return autoInputs
     end
@@ -670,95 +616,158 @@ do
       local autoOutputs = {}
       for _, item in ipairs(self.items) do
         local autoOutput = item:getRemoteAutoOutput()
-        if autoOutput then
-          table.insert(autoOutputs, autoOutput)
-        end
+        if autoOutput then table.insert(autoOutputs, autoOutput) end
       end
       return autoOutputs
     end
-    function ControlSurface:handleSysexEvent(event)
-      return false
+    function ControlSurface:addToMidiQueue(message, kwargs)
+      asrt.argType(message, 'table', 'ControlSurface:addToMidiQueue', 'message')
+
+      kwargs                 = kwargs or {}
+      local delayMS          = obj.get(kwargs, 'delayMS', false, 0)
+      local overridePrevious = obj.get(kwargs, 'overridePrevious', false, false)
+
+      local timeStamp        = remote.get_time_ms() + delayMS
+      local indexOfPrevious
+      if overridePrevious then
+        for i, queueItem in ipairs(self.midiQueue) do
+          if arr.equals(queueItem.message, message) then
+            indexOfPrevious = i
+            break
+          end
+        end
+      end
+
+      if indexOfPrevious then
+        self.midiQueue[indexOfPrevious].timeStamp = timeStamp
+      else
+        local newQueueItem = { message = message, timeStamp = timeStamp }
+        table.insert(self.midiQueue, newQueueItem)
+      end
+    end
+    function ControlSurface:processMidiQueue()
+      local retEvents        = {}
+      local updatedMidiQueue = {}
+      for _, queueItem in ipairs(self.midiQueue) do
+        if remote.get_time_ms() >= queueItem.timeStamp then
+          table.insert(retEvents, queueItem.message)
+        else
+          table.insert(updatedMidiQueue, queueItem)
+        end
+      end
+      self.midiQueue = updatedMidiQueue
+      return retEvents
+    end
+    function ControlSurface:processSysexEvent(event)
+      return {}, false
     end
     function ControlSurface:tick(timestamp)
       return
     end
     function ControlSurface:translateMidiEvent(event)
       -- returns the index of a matching item and the midi values by event
-      for index, item in ipairs(self.items) do
+      for _, item in ipairs(self.items) do
         if item.input and item.input.pattern then
           local midi = remote.match_midi(item.input.pattern, event)
-          if midi then
-            return index, midi
-          end
+          if midi then return item, midi end
         end
       end
       return nil, nil
+    end
+    function ControlSurface:setState(changedItems, changedItemsPerGroup, newScriptStates)
+      return
+    end
+    function ControlSurface:prepareForUse()
+      return {}
+    end
+    function ControlSurface:releaseFromUse()
+      return {}
     end
 
     MidiInput = Class()
     function MidiInput:__classname() return 'MidiInput' end
     function MidiInput:repr() return self.item.name end
-    function MidiInput:construct(args)
-      self.item        = obj.get(args, 'item', true)
-      self.type        = obj.get(args, 'type', true)
-      self.auto_handle = obj.get(args, 'auto_handle', false, true)
+    function MidiInput:construct(item, kwargs)
+      asrt.argType(item, 'table', 'MidiInput:construct', 'item')
+      asrt.argType(kwargs, 'table', 'MidiInput:construct', 'kwargs')
 
-      self.pattern     = obj.get(args, 'pattern', false)
-      self.value       = obj.get(args, 'value', false, 'x')
-      self.note        = obj.get(args, 'note', false, 'y')
-      self.velocity    = obj.get(args, 'velocity', false, 'z')
-      self.port        = obj.get(args, 'port', false)
+      self.item        = item
+      self.type        = obj.get(kwargs, 'type', true)
+      self.auto_handle = obj.get(kwargs, 'auto_handle', false, true)
+
+      self.pattern     = obj.get(kwargs, 'pattern', false)
+      self.value       = obj.get(kwargs, 'value', false, 'x')
+      self.note        = obj.get(kwargs, 'note', false, 'y')
+      self.velocity    = obj.get(kwargs, 'velocity', false, 'z')
+      self.port        = obj.get(kwargs, 'port', false)
     end
 
     MidiOutput = Class()
     function MidiOutput:__classname() return 'MidiOutput' end
     function MidiOutput:repr() return self.item.name end
-    function MidiOutput:construct(args)
-      self.item        = obj.get(args, 'item', true)
-      self.type        = obj.get(args, 'type', true)
-      self.auto_handle = obj.get(args, 'auto_handle', false, true)
+    function MidiOutput:construct(item, kwargs)
+      asrt.argType(item, 'table', 'MidiOutput:construct', 'item')
+      asrt.argType(kwargs, 'table', 'MidiOutput:construct', 'kwargs')
 
-      self.pattern     = obj.get(args, 'pattern', false)
-      self.x           = obj.get(args, 'x', false, 'value')
-      self.y           = obj.get(args, 'y', false, 'mode')
-      self.z           = obj.get(args, 'z', false, 'enabled')
-      self.port        = obj.get(args, 'port', false)
+      self.item        = item
+      self.type        = obj.get(kwargs, 'type', true)
+      self.auto_handle = obj.get(kwargs, 'auto_handle', false, true)
+
+      self.pattern     = obj.get(kwargs, 'pattern', false)
+      self.x           = obj.get(kwargs, 'x', false, 'value')
+      self.y           = obj.get(kwargs, 'y', false, 'mode')
+      self.z           = obj.get(kwargs, 'z', false, 'enabled')
+      self.port        = obj.get(kwargs, 'port', false)
     end
 
     SurfaceItem = Class()
     function SurfaceItem:__classname() return 'SurfaceItem' end
     function SurfaceItem:repr() return self.name end
-    function SurfaceItem:construct(args)
-      local inputArgs  = obj.get(args, 'input', false)
-      local outputArgs = obj.get(args, 'output', false)
-      if inputArgs then inputArgs['item'] = self end
-      if outputArgs then outputArgs['item'] = self end
+    function SurfaceItem:construct(surface, kwargs)
+      asrt.argType(surface, 'table', 'SurfaceItem:construct', 'surface')
+      asrt.argType(kwargs, 'table', 'SurfaceItem:construct', 'kwargs')
 
-      self.name          = obj.get(args, 'name', true)
-      self.min           = obj.get(args, 'min', false)
-      self.max           = obj.get(args, 'max', false)
-      self.modes         = obj.get(args, 'modes', false, {})
-      self.meta          = obj.get(args, 'meta', false, {})
+      self.surface = surface
+      table.insert(self.surface.items, self)
+      self.index         = arr.length(self.surface.items)
 
-      self.input         = inputArgs and MidiInput(inputArgs) or nil
-      self.output        = outputArgs and MidiOutput(outputArgs) or nil
+      self.name          = obj.get(kwargs, 'name', true)
+      self.min           = obj.get(kwargs, 'min', false)
+      self.max           = obj.get(kwargs, 'max', false)
+      self.modes         = obj.get(kwargs, 'modes', false, {})
+      self.meta          = obj.get(kwargs, 'meta', false, {})
+
+      local inputKwargs  = obj.get(kwargs, 'input', false)
+      local outputKwargs = obj.get(kwargs, 'output', false)
+
+      self.input         = inputKwargs and MidiInput(self, inputKwargs) or nil
+      self.output        = outputKwargs and MidiOutput(self, outputKwargs) or nil
 
       self.overrideItems = {}
-      self.slaveItems    = obj.get(args, 'slaveItems', false, {})
-
+      self.slaveItems    = obj.get(kwargs, 'slaveItems', false, {})
       for _, item in ipairs(self.slaveItems) do
         table.insert(item.overrideItems, self)
       end
+
+      self.groups = obj.get(kwargs, 'groups', false, {})
+      for _, groupName in ipairs(self.groups) do
+        if not obj.hasKey(self.surface.itemGroups, groupName) then self.surface.itemGroups[groupName] = {} end
+        table.insert(self.surface.itemGroups[groupName], self.index)
+      end
     end
-    function SurfaceItem:enabledInputOverride()
+    function SurfaceItem:sendMidi(midi, kwargs)
+      local message = remote.make_midi(self.output.pattern, midi)
+      self.surface:addToMidiQueue(message, kwargs)
+    end
+    function SurfaceItem:getEnabledInputOverride()
       for _, overrideItem in ipairs(self.overrideItems) do
-        if overrideItem.handleInput and overrideItem:isEnabled() then return overrideItem end
+        if overrideItem:isEnabled() and overrideItem.input then return overrideItem end
       end
       return nil
     end
-    function SurfaceItem:enabledOutputOverride()
+    function SurfaceItem:getEnabledOutputOverride()
       for _, overrideItem in ipairs(self.overrideItems) do
-        if overrideItem.handleOutput and overrideItem:isEnabled() then return overrideItem end
+        if overrideItem:isEnabled() and overrideItem.output then return overrideItem end
       end
       return nil
     end
@@ -792,563 +801,595 @@ do
         port    = self.output.port
       } or nil
     end
-    function SurfaceItem:getModeData()
-      return self.modes and self.modes[remote.get_item_mode(self.index)] or nil
+    function SurfaceItem:processMidi(midi)
+      return {}, false
+    end
+    function SurfaceItem:setState()
+      return
+    end
+    function SurfaceItem:onAutoInput()
+      return
+    end
+    function SurfaceItem:linkVirtualItem()
+
+    end
+    -- utility wrapper methods
+    function SurfaceItem:modeData()
+      return #self.modes and self.modes[remote.get_item_mode(self.index)] or nil
     end
     function SurfaceItem:isEnabled()
       return remote.is_item_enabled(self.index)
     end
-    function SurfaceItem:handleInput()
-      return {}, false
+    function SurfaceItem:remotableName()
+      return remote.get_item_name(self.index)
+    end
+    function SurfaceItem:remotableNameAndValue()
+      return remote.get_item_name_and_value(self.index)
+    end
+    function SurfaceItem:remotableShortName()
+      return remote.get_item_short_name(self.index)
+    end
+    function SurfaceItem:remotableShortNameAndValue()
+      return remote.get_item_short_name_and_value(self.index)
+    end
+    function SurfaceItem:remotableShortestName()
+      return remote.get_item_shortest_name(self.index)
+    end
+    function SurfaceItem:remotableShortestNameAndValue()
+      return remote.get_item_shortest_name_and_value(self.index)
+    end
+    function SurfaceItem:remotableState()
+      return remote.get_item_state(self.index)
+    end
+    function SurfaceItem:remotableTextValue()
+      return remote.get_item_text_value(self.index)
+    end
+    function SurfaceItem:remotableValue()
+      return remote.get_item_value(self.index)
     end
 
     ScriptItem = Class(SurfaceItem)
     function ScriptItem:__classname() return 'ScriptItem' end
     function ScriptItem:repr() return self.name end
-    function ScriptItem:construct(args)
-      ScriptItem.super.construct(self, {
-        name   = obj.get(args, 'name', true),
-        output = { auto_handle = false, type = 'text' }
+    function ScriptItem:construct(surface, kwargs)
+      local name = obj.get(kwargs, 'name', true)
+      ScriptItem.super.construct(self, surface, {
+        name   = '$' .. name,
+        output = { auto_handle = false, type = 'text' },
+        groups = { 'ScriptItems' }
       })
+      self.internalName                                      = name
+      self.surface.scriptState[self.internalName .. '_prev'] = ''
+      self.surface.scriptState[self.internalName]            = ''
     end
-    function ScriptItem:handleOutput()
-      local newValue                           = self:isEnabled() and remote.get_item_text_value(self.index) or ''
-      self.surface.state[self.name .. '_prev'] = self.surface.state[self.name]
-      self.surface.state[self.name]            = newValue
+    function ScriptItem:setState()
+      local newValue                                         = self:isEnabled() and self:remotableTextValue() or ''
+      self.surface.scriptState[self.internalName .. '_prev'] = self.surface.scriptState[self.internalName]
+      self.surface.scriptState[self.internalName]            = newValue
     end
+
+    VirtualItem = Class(SurfaceItem)
+    function VirtualItem:__classname() return 'VirtualItem' end
+    function VirtualItem:repr() return self.name end
+    function VirtualItem:construct(surface, kwargs)
+      kwargs.name = '_' .. obj.get(kwargs, 'name', true)
+      VirtualItem.super.construct(self, surface, kwargs)
+    end
+
   end
 end
 
 getSurface = function(manufacturer, model)
-  if model == 'LaunchPad' then
-    return LaunchPad(manufacturer, model)
+  if model == 'Launchpad' then
+    return Launchpad(manufacturer, model)
+  elseif model == 'DS1' then
+    return DS1(manufacturer, model)
   end
 end
 
--- LaunchPad Control Surface
+-- Novation Launchpad (Mk1)
 do
-  -- Item Classes
-  do
-    local maxBrightness = 3
-    local colorCodes    = {}
-    local ledModes      = {}
-    local buttonModes   = {}
-    for r1 = 0, maxBrightness do
-      for g1 = 0, maxBrightness do
-        local name1       = r1 .. g1
-        local value1      = r1 + 16 * g1
-        colorCodes[name1] = value1
 
-        for r2 = 0, maxBrightness do
-          for g2 = 0, maxBrightness do
-            local name2    = r2 .. g2
-            local value2   = r2 + 16 * g2
+  local maxBrightness = 3
+  local colorCodes    = {}
+  local ledModes      = {}
+  local buttonModes   = {}
+  for r1 = 0, maxBrightness do
+    for g1 = 0, maxBrightness do
+      local name1       = r1 .. g1
+      local value1      = r1 + 16 * g1
+      colorCodes[name1] = value1
 
-            local modeName = name1 == name2 and name1 or name1 .. name2
-            table.insert(ledModes, { name = modeName, values = { value1, value2 } })
-            table.insert(buttonModes, { name = modeName, values = { value1, value2 }, hold = false })
-            table.insert(buttonModes, { name = modeName .. 'h', values = { value1, value2 }, hold = true })
-          end
+      for r2 = 0, maxBrightness do
+        for g2 = 0, maxBrightness do
+          local name2    = r2 .. g2
+          local value2   = r2 + 16 * g2
+
+          local modeName = name1 == name2 and name1 or name1 .. name2
+          table.insert(ledModes, { name = modeName, values = { value1, value2 } })
+          table.insert(buttonModes, { name = modeName, values = { value1, value2 }, hold = false })
+          table.insert(buttonModes, { name = modeName .. 'h', values = { value1, value2 }, hold = true })
         end
       end
     end
-    table.insert(ledModes, {
-      name   = 'redrumEditAccent',
-      values = { colorCodes['13'], colorCodes['32'], colorCodes['20'] }
-    })
-    table.insert(ledModes, {
-      name   = 'redrumStepPlaying',
-      values = { colorCodes['00'], colorCodes['21'], colorCodes['03'], colorCodes['02'], colorCodes['01'] }
-    })
-    table.insert(ledModes, {
-      name   = 'redrumStepOut',
-      values = { colorCodes['00'], colorCodes['13'], colorCodes['32'], colorCodes['20'], colorCodes['02'] }
-    })
+  end
+  table.insert(ledModes, {
+    name   = 'redrumEditAccent',
+    values = { colorCodes['13'], colorCodes['32'], colorCodes['20'] }
+  })
+  table.insert(ledModes, {
+    name   = 'redrumStepPlaying',
+    values = { colorCodes['00'], colorCodes['21'], colorCodes['03'], colorCodes['02'], colorCodes['01'] }
+  })
+  table.insert(ledModes, {
+    name   = 'redrumStepOut',
+    values = { colorCodes['00'], colorCodes['13'], colorCodes['32'], colorCodes['20'], colorCodes['02'] }
+  })
 
-    LPButtonItem = Class(SurfaceItem)
-    function LPButtonItem:__classname() return 'LPButtonItem' end
-    function LPButtonItem:construct(args)
-      local name          = obj.get(args, 'name', true)
-      local midiAction    = obj.get(args, 'midiAction', true)
-      local addressByte   = obj.get(args, 'addressByte', true)
-      local meta          = obj.get(args, 'meta', false, {})
+  LPButtonItem = Class(SurfaceItem)
+  function LPButtonItem:__classname() return 'LPButtonItem' end
+  function LPButtonItem:construct(surface, kwargs)
+    local name          = obj.get(kwargs, 'name', true)
+    local midiAction    = obj.get(kwargs, 'midiAction', true)
+    local addressByte   = obj.get(kwargs, 'addressByte', true)
+    local meta          = obj.get(kwargs, 'meta', false, {})
 
-      local inputPattern  = midi.pattern(midiAction, 0, addressByte, '?<???x>')
-      local outputPattern = midi.pattern(midiAction, 0, addressByte, 'xx')
+    local inputPattern  = midi.pattern(midiAction, 0, addressByte, '?<???x>')
+    local outputPattern = midi.pattern(midiAction, 0, addressByte, 'xx')
 
-      LPButtonItem.super.construct(self, {
-        name   = name,
-        min    = 0,
-        max    = 1,
-        modes  = buttonModes,
-        meta   = meta,
-        input  = {
-          type    = 'button',
-          pattern = inputPattern
-        },
-        output = {
-          auto_handle = false,
-          type        = 'value',
-          pattern     = outputPattern,
-        }
-      })
-    end
-    function LPButtonItem:handleInput(midi)
-      local overrideItem = self:enabledInputOverride()
-      if overrideItem then
-        return overrideItem:handleInput(midi, self)
-      else
-        local messages, handled = {}, false
-        local pressed           = midi.x > 0
-        local modeData          = self:getModeData()
-        if modeData.hold then
-          local remotableItemOn = remote.get_item_value(self.index) > 0
-          if pressed == remotableItemOn then
-            handled = true
-          end
-          local holdGroup = self.surface.state.buttonHoldGroup
-          if pressed and not arr.hasValue(holdGroup, self.index) then
-            table.insert(holdGroup, self.index)
-          elseif arr.hasValue(holdGroup, self.index) then
-            table.remove(holdGroup, arr.indexOfValue(holdGroup, self.index))
-            table.insert(messages, { item = self.index, value = 1 })
-          end
-        end
-        return messages, handled
-      end
-    end
-    function LPButtonItem:handleOutput()
-      local overrideItem = self:enabledOutputOverride()
-      if (not overrideItem or not overrideItem:isEnabled()) and not self.led:isEnabled() then
-        local retValue = 0
-        if self:isEnabled() then
-          local modeValues = self:getModeData().values
-          if arr.length(modeValues) == 1 then
-            retValue = modeValues[1]
-          else
-            retValue = modeValues[remote.get_item_value(self.index) + 1]
-          end
-        end
-        codec.sendMidi { message = remote.make_midi(self.output.pattern, { x = retValue }) }
-      end
-    end
-
-    LPLedItem = Class(SurfaceItem)
-    function LPLedItem:__classname() return 'LPLedItem' end
-    function LPLedItem:construct(args)
-      local button = obj.get(args, 'button', true)
-
-      LPLedItem.super.construct(self, {
-        name   = button.name .. ' LED',
-        min    = 0,
-        max    = 127,
-        output = {
-          auto_handle = false,
-          type        = 'value'
-        },
-        modes  = ledModes
-      })
-      self.button = button
-      button.led  = self
-    end
-    function LPLedItem:convertRemoteValue(remoteValue, maxValue)
-      return math.floor(remoteValue * maxValue / self.max)
-    end
-    function LPLedItem:handleOutput()
-      if self:isEnabled() then
-        local modeValues  = self:getModeData().values
-        local remoteValue = self:convertRemoteValue(remote.get_item_value(self.index), arr.length(modeValues) - 1)
-        codec.sendMidi { message = remote.make_midi(self.button.output.pattern, { x = modeValues[remoteValue + 1] }) }
-      else
-        self.button:handleOutput()
-      end
-    end
-
-    OverrideMixin = Class(SurfaceItem)
-    function OverrideMixin:__classname() return 'OverrideMixin' end
-    function OverrideMixin:construct(slaveItems)
-      self.slaves = {}
-      for _, item in ipairs(slaveItems) do
-        table.insert(self.slaves, item)
-        table.insert(item.meta.overrides, self)
-      end
-    end
-
-    LPRedrumEditAccentOverrideItem = Class(SurfaceItem)
-    function LPRedrumEditAccentOverrideItem:__classname() return 'LPRedrumEditAccentOverrideItem' end
-    function LPRedrumEditAccentOverrideItem:construct(args)
-      local name           = obj.get(args, 'name', true)
-      local hardAccentItem = obj.get(args, 'hardAccentItem', true)
-      local softAccentItem = obj.get(args, 'softAccentItem', true)
-
-      LPRedrumEditAccentOverrideItem.super.construct(self, {
-        name       = name,
-        min        = 0,
-        max        = 2,
-        input      = {
-          auto_handle = false,
-          type        = 'value'
-        },
-        output     = {
-          auto_handle = false,
-          type        = 'value',
-        },
-        modes      = ledModes,
-        slaveItems = { hardAccentItem, softAccentItem }
-      })
-
-      self.accentItems       = {
-        hard = hardAccentItem,
-        soft = softAccentItem
+    LPButtonItem.super.construct(self, surface, {
+      name   = name,
+      min    = 0,
+      max    = 1,
+      modes  = buttonModes,
+      meta   = meta,
+      input  = {
+        type    = 'button',
+        pattern = inputPattern
+      },
+      output = {
+        auto_handle = false,
+        type        = 'value',
+        pattern     = outputPattern,
       }
-      self.sourceItemMap     = {
-        [hardAccentItem.index] = 'hard',
-        [softAccentItem.index] = 'soft'
-      }
-      self.hardAccentPressed = false
-      self.softAccentPressed = false
-    end
-    function LPRedrumEditAccentOverrideItem:handleInput(midi, sourceItem)
+    })
+  end
+  function LPButtonItem:processMidi(midi)
+    local overrideItem = self:getEnabledInputOverride()
+    if overrideItem then
+      return overrideItem:processMidi(midi, self)
+    else
       local messages, handled = {}, false
       local pressed           = midi.x > 0
-      local accentType        = self.sourceItemMap[sourceItem.index]
-      if accentType == 'hard' then
-        self.hardAccentPressed = pressed
-        handled                = true
-      elseif accentType == 'soft' then
-        self.softAccentPressed = pressed
-        handled                = true
-      end
-      if handled then
-        local inputValue = 1 + (self.hardAccentPressed and 1 or 0) - (self.softAccentPressed and 1 or 0)
-        table.insert(messages, { item = self.index, value = inputValue })
-      end
-      return messages, handled
-    end
-    function LPRedrumEditAccentOverrideItem:handleOutput()
-      if self:isEnabled() then
-        local modeValues = self:getModeData().values
-        local retValue   = modeValues[remote.get_item_value(self.index) + 1]
-        for _, slaveItem in ipairs(self.slaveItems) do
-          codec.sendMidi { message = remote.make_midi(slaveItem.output.pattern, { x = retValue }) }
+      local modeData          = self:modeData()
+      if modeData.hold then
+        local remotableItemOn = self:remotableValue() > 0
+        if pressed == remotableItemOn then
+          handled = true
         end
-      else
-        for _, slaveItem in ipairs(self.slaveItems) do
-          slaveItem:handleOutput()
-        end
-      end
-    end
-
-    LPRedrumEditStepsOverrideItem = Class(SurfaceItem)
-    function LPRedrumEditStepsOverrideItem:__classname() return 'LPRedrumEditStepsOverrideItem' end
-    function LPRedrumEditStepsOverrideItem:construct(args)
-      local name     = obj.get(args, 'name', true)
-      local val0Item = obj.get(args, 'val0Item', true)
-      local val1Item = obj.get(args, 'val1Item', true)
-      local val2Item = obj.get(args, 'val2Item', true)
-      local val3Item = obj.get(args, 'val3Item', true)
-
-      LPRedrumEditAccentOverrideItem.super.construct(self, {
-        name       = name,
-        min        = 0,
-        max        = 3,
-        input      = {
-          auto_handle = false,
-          type        = 'value'
-        },
-        output     = {
-          auto_handle = false,
-          type        = 'value'
-        },
-        modes      = ledModes,
-        slaveItems = { val0Item, val1Item, val2Item, val3Item }
-      })
-
-      self.stepItems     = {}
-      self.sourceItemMap = {}
-      for i, item in ipairs(self.slaveItems) do
-        self.stepItems[i - 1]          = item
-        self.sourceItemMap[item.index] = i - 1
-      end
-    end
-    function LPRedrumEditStepsOverrideItem:handleInput(midi, sourceItem)
-      local messages, handled = {}, false
-      local pressed           = midi.x > 0
-      local inputValue        = self.sourceItemMap[sourceItem.index]
-      if inputValue ~= nil then
-        handled = true
-      end
-      if handled and pressed then
-        table.insert(messages, { item = self.index, value = inputValue })
-      end
-      return messages, handled
-    end
-    function LPRedrumEditStepsOverrideItem:handleOutput()
-      if self:isEnabled() then
-        local modeValues  = self:getModeData().values
-        local remoteValue = remote.get_item_value(self.index)
-        for itemValue, item in pairs(self.stepItems) do
-          local retValue = itemValue == remoteValue and modeValues[2] or modeValues[1]
-          codec.sendMidi { message = remote.make_midi(item.output.pattern, { x = retValue }) }
-        end
-      else
-        for _, slaveItem in ipairs(self.slaveItems) do
-          slaveItem:handleOutput()
-        end
-      end
-    end
-
-    LPRedrumStepPlayingOverrideItem = Class(SurfaceItem)
-    function LPRedrumStepPlayingOverrideItem:__classname() return 'LPRedrumStepPlayingOverrideItem' end
-    function LPRedrumStepPlayingOverrideItem:construct(args)
-      local name       = obj.get(args, 'name', true)
-      local slaveItems = obj.get(args, 'slaveItems', true)
-
-      LPRedrumStepPlayingOverrideItem.super.construct(self, {
-        name       = name,
-        min        = 0,
-        max        = 63,
-        output     = {
-          auto_handle = false,
-          type        = 'value'
-        },
-        modes      = ledModes,
-        slaveItems = slaveItems
-      })
-
-      self.barItems  = {}
-      self.beatItems = {}
-      for i, item in ipairs(self.slaveItems) do
-        if i <= 4 then
-          self.barItems[i - 1] = item
-        else
-          self.beatItems[i - 1 - 4] = item
-        end
-      end
-    end
-    function LPRedrumStepPlayingOverrideItem:handleOutput()
-      if self:isEnabled() then
-        local remoteValue = remote.get_item_value(self.index)
-        local bar         = math.floor(bit.mod(remoteValue / 16, 4))
-        local beat        = math.floor(bit.mod(remoteValue, 16) / 4)
-        local sixteenth   = math.floor(bit.mod(remoteValue, 4))
-        local modeValues  = self:getModeData().values
-        for itemValue, item in pairs(self.barItems) do
-          local retValue = itemValue == bar and modeValues[2] or modeValues[1]
-          codec.sendMidi { message = remote.make_midi(item.output.pattern, { x = retValue }) }
-        end
-        for itemValue, item in pairs(self.beatItems) do
-          local retValue = itemValue == beat and modeValues[2 + sixteenth] or modeValues[1]
-          codec.sendMidi { message = remote.make_midi(item.output.pattern, { x = retValue }) }
-        end
-      else
-        for _, slaveItem in ipairs(self.slaveItems) do
-          slaveItem:handleOutput()
-        end
-      end
-    end
-
-    local keyboardSetupModes = {
-      layout = {
-        { name = 'push', rowOffset = 5 },
-        { name = 'diatonic', rowOffset = 6 },
-        { name = 'diagonal', rowOffset = 7 },
-        { name = 'octave', rowOffset = 1 },
-      },
-      scale  = {
-        { name = 'minor', intervals = { 0, 2, 3, 5, 7, 8, 10 } },
-        { name = 'major', intervals = { 0, 2, 4, 5, 7, 9, 11 } },
-        { name = 'harmonic', intervals = { 0, 2, 3, 5, 7, 8, 11 } },
-        { name = 'byzantine', intervals = { 0, 2, 3, 6, 7, 8, 11 } },
-        -- special cases
-        { name = 'melodic', intervals = { 0, 2, 3, 5, 7, 9, 11 }, downIntervals = { 0, 2, 3, 5, 7, 8, 10 } },
-        { name = 'chromatic', intervals = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 } },
-      },
-      root   = {
-        { name = 'a', noteOffset = 0 }, { name = 'a#', noteOffset = 1 }, { name = 'b', noteOffset = 2 },
-        { name = 'c', noteOffset = 3 }, { name = 'c#', noteOffset = 4 }, { name = 'd', noteOffset = 5 },
-        { name = 'd#', noteOffset = 6 }, { name = 'e', noteOffset = 7 }, { name = 'f', noteOffset = 8 },
-        { name = 'f#', noteOffset = 9 }, { name = 'g', noteOffset = 10 }, { name = 'g#', noteOffset = 11 },
-      },
-      octave = {
-        { name = '1', octaveOffset = -4 }, { name = '2', octaveOffset = -3 }, { name = '3', octaveOffset = -2 },
-        { name = '4', octaveOffset = 1 }, { name = '5', octaveOffset = 0 }, { name = '6', octaveOffset = 1 },
-      }
-    }
-
-    LPKeyboardOverrideItem   = Class(SurfaceItem)
-    function LPKeyboardOverrideItem:__classname() return 'LPKeyboardOverrideItem' end
-    function LPKeyboardOverrideItem:construct(args)
-      local name       = obj.get(args, 'name', true)
-      local slaveItems = obj.get(args, 'slaveItems', true)
-
-      LPKeyboardOverrideItem.super.construct(self, {
-        name       = name,
-        min        = 0,
-        max        = 1,
-        input      = {
-          auto_handle = false,
-          type        = 'keyboard',
-        },
-        output     = {
-          auto_handle = false,
-          type        = 'value',
-        },
-        modes      = { { name = 'keyboard', values = { colorCodes['00'], colorCodes['21'], colorCodes['03'] } } },
-        slaveItems = slaveItems
-      })
-
-      self.active       = false
-      self.ready        = false
-      self.currentModes = {
-        layout = arr.getByAttrValue(keyboardSetupModes.layout, 'name', 'push'),
-        scale  = arr.getByAttrValue(keyboardSetupModes.scale, 'name', 'minor'),
-        root   = arr.getByAttrValue(keyboardSetupModes.root, 'name', 'a'),
-        octave = arr.getByAttrValue(keyboardSetupModes.octave, 'name', '3'),
-      }
-
-      self:updateGridData()
-    end
-    function LPKeyboardOverrideItem:updateGridData()
-      self.gridData             = {}
-      self.lastPlayedNoteId     = 0
-      self.lastPlayedNoteWentUp = false
-      local scaleLength         = arr.length(self.currentModes.scale.intervals)
-      local rowOffset           = self.currentModes.layout.rowOffset
-      if self.currentModes.layout.name == 'octave' and self.currentModes.scale.name == 'chromatic' then rowOffset = 0 end
-
-      for _, item in pairs(self.slaveItems) do
-        local row, col   = unpack(item.meta.kbCoordinates)
-        local noteId     = row * (8 - rowOffset) + col
-        item.meta.noteId = noteId
-        if not obj.hasKey(self.gridData, noteId) then
-          self.gridData[noteId] = {
-            octave         = math.floor(noteId / scaleLength),
-            intervalIndex  = bit.mod(noteId, scaleLength) + 1,
-            buttons        = {},
-            buttonsPressed = {},
-            notePlayed     = false
-          }
-        end
-        local gridCell = self.gridData[noteId]
-        table.insert(gridCell.buttons, item)
-        gridCell.buttonsPressed[item.index] = false
-      end
-    end
-    function LPKeyboardOverrideItem:updateKeyboard(newScriptItemStates)
-      local newLayout = obj.get(newScriptItemStates, '_KB_Layout', false)
-      local newScale  = obj.get(newScriptItemStates, '_KB_Scale', false)
-      local newRoot   = obj.get(newScriptItemStates, '_KB_Root', false)
-      local newOctave = obj.get(newScriptItemStates, '_KB_Octave', false)
-
-      if newLayout then self.currentModes.layout = arr.getByAttrValue(keyboardSetupModes.layout, 'name', newLayout) end
-      if newScale then self.currentModes.scale = arr.getByAttrValue(keyboardSetupModes.scale, 'name', newScale) end
-      if newRoot then self.currentModes.root = arr.getByAttrValue(keyboardSetupModes.root, 'name', newRoot) end
-      if newOctave then self.currentModes.octave = arr.getByAttrValue(keyboardSetupModes.octave, 'name', newOctave) end
-
-      if newLayout or newScale then self:updateGridData() end
-
-      if self:isEnabled() and not self.active then
-        self:activate()
-      elseif not self:isEnabled() and self.active then
-        self:deactivate()
-      end
-    end
-    function LPKeyboardOverrideItem:activate()
-      self.active      = true
-      local modeValues = self:getModeData().values
-      for _, data in pairs(self.gridData) do
-        if data.intervalIndex == 1 then
-          for _, button in pairs(data.buttons) do
-            codec.sendMidi { message = remote.make_midi(button.output.pattern, { x = modeValues[2] }) }
-          end
-        end
-      end
-      self.ready = true
-    end
-    function LPKeyboardOverrideItem:deactivate()
-      self.active = false
-      self.ready  = false
-      for _, button in pairs(self.slaveItems) do
-        button:handleOutput()
-      end
-    end
-    function LPKeyboardOverrideItem:isEnabled()
-      return self.surface.state._Scope == 'Master Keyboard' and self.surface.state._Var == 'Keyboard'
-    end
-    function LPKeyboardOverrideItem:getNoteValue(noteId, gridCell)
-      if noteId > self.lastPlayedNoteId then
-        self.lastPlayedNoteWentUp = true
-      elseif noteId < self.lastPlayedNoteId then
-        self.lastPlayedNoteWentUp = false
-      end
-      self.lastPlayedNoteId = noteId
-
-      local intervals       = {}
-      local scale           = self.currentModes.scale
-      if obj.hasKey(scale, 'downIntervals') then
-        intervals = self.lastPlayedNoteWentUp and scale.intervals or scale.downIntervals
-      else
-        intervals = scale.intervals
-      end
-
-      local baseNoteValue    = 69  -- this is the midi value for A4. nice
-      local rootNoteOffset   = self.currentModes.root.noteOffset
-      local modeOctaveOffset = 12 * self.currentModes.octave.octaveOffset
-      local gridOctaveOffset = 12 * gridCell.octave
-      local intervalOffset   = intervals[gridCell.intervalIndex]
-
-      return baseNoteValue + rootNoteOffset + modeOctaveOffset + gridOctaveOffset + intervalOffset
-    end
-    function LPKeyboardOverrideItem:handleInput(midi, sourceItem)
-      local messages, handled                   = {}, false
-      local noteId                              = sourceItem.meta.noteId
-      local gridCell                            = self.gridData[noteId]
-      gridCell.buttonsPressed[sourceItem.index] = midi.x > 0
-      local modeValues                          = self:getModeData().values
-      if not gridCell.notePlayed and obj.hasValue(gridCell.buttonsPressed, true) then
-        handled         = true
-        local noteValue = self:getNoteValue(noteId, gridCell)
-        table.insert(messages, { item = self.index, note = noteValue, value = 1, velocity = 100 })
-        gridCell.notePlayed = noteValue
-        local onValue       = modeValues[3]
-        for _, button in pairs(gridCell.buttons) do
-          codec.sendMidi { message = remote.make_midi(button.output.pattern, { x = onValue }) }
-        end
-
-      elseif gridCell.notePlayed and not obj.hasValue(gridCell.buttonsPressed, true) then
-        handled = true
-        table.insert(messages, { item = self.index, note = gridCell.notePlayed, value = 0 })
-        gridCell.notePlayed = false
-        local offValue      = gridCell.intervalIndex == 1 and modeValues[2] or modeValues[1]
-        for _, button in pairs(gridCell.buttons) do
-          codec.sendMidi { message = remote.make_midi(button.output.pattern, { x = offValue }) }
+        local holdGroup = self.surface.scriptState.buttonHoldGroup
+        if pressed and not arr.hasValue(holdGroup, self.index) then
+          table.insert(holdGroup, self.index)
+        elseif arr.hasValue(holdGroup, self.index) then
+          table.remove(holdGroup, arr.indexOfValue(holdGroup, self.index))
+          table.insert(messages, { item = self.index, value = 1 })
         end
       end
       return messages, handled
     end
   end
+  function LPButtonItem:setState()
+    local overrideItem = self:getEnabledOutputOverride()
+    if (not overrideItem or not overrideItem:isEnabled()) and not self.led:isEnabled() then
+      local retValue = 0
+      if self:isEnabled() then
+        local modeValues = self:modeData().values
+        if arr.length(modeValues) == 1 then
+          retValue = modeValues[1]
+        else
+          retValue = modeValues[self:remotableValue() + 1]
+        end
+      end
+      self:sendMidi({ x = retValue })
+    end
+  end
 
-  LaunchPad = Class(ControlSurface)
-  function LaunchPad:repr() return 'LaunchPad' end
-  function LaunchPad:construct(manufacturer, modes)
-    LaunchPad.super.construct(self)
+  LPLedItem = Class(SurfaceItem)
+  function LPLedItem:__classname() return 'LPLedItem' end
+  function LPLedItem:construct(surface, kwargs)
+    local button = obj.get(kwargs, 'button', true)
+
+    LPLedItem.super.construct(self, surface, {
+      name   = button.name .. ' LED',
+      min    = 0,
+      max    = 127,
+      output = {
+        auto_handle = false,
+        type        = 'value'
+      },
+      modes  = ledModes
+    })
+    self.button = button
+    button.led  = self
+  end
+  function LPLedItem:convertRemoteValue(remoteValue, maxValue)
+    return math.floor(remoteValue * maxValue / self.max)
+  end
+  function LPLedItem:setState()
+    if self:isEnabled() then
+      local modeValues  = self:modeData().values
+      local remoteValue = self:convertRemoteValue(self:remotableValue(), arr.length(modeValues) - 1)
+      self.button:sendMidi({ x = modeValues[remoteValue + 1] })
+    else
+      self.button:setState()
+    end
+  end
+
+  LPRedrumEditAccentOverrideItem = Class(SurfaceItem)
+  function LPRedrumEditAccentOverrideItem:__classname() return 'LPRedrumEditAccentOverrideItem' end
+  function LPRedrumEditAccentOverrideItem:construct(surface, kwargs)
+    local name           = obj.get(kwargs, 'name', true)
+    local hardAccentItem = obj.get(kwargs, 'hardAccentItem', true)
+    local softAccentItem = obj.get(kwargs, 'softAccentItem', true)
+
+    LPRedrumEditAccentOverrideItem.super.construct(self, surface, {
+      name       = name,
+      min        = 0,
+      max        = 2,
+      input      = {
+        auto_handle = false,
+        type        = 'value'
+      },
+      output     = {
+        auto_handle = false,
+        type        = 'value',
+      },
+      modes      = ledModes,
+      slaveItems = { hardAccentItem, softAccentItem }
+    })
+
+    self.accentItems       = {
+      hard = hardAccentItem,
+      soft = softAccentItem
+    }
+    self.sourceItemMap     = {
+      [hardAccentItem.index] = 'hard',
+      [softAccentItem.index] = 'soft'
+    }
+    self.hardAccentPressed = false
+    self.softAccentPressed = false
+  end
+  function LPRedrumEditAccentOverrideItem:processMidi(midi, sourceItem)
+    local messages, handled = {}, false
+    local pressed           = midi.x > 0
+    local accentType        = self.sourceItemMap[sourceItem.index]
+    if accentType == 'hard' then
+      self.hardAccentPressed = pressed
+      handled                = true
+    elseif accentType == 'soft' then
+      self.softAccentPressed = pressed
+      handled                = true
+    end
+    if handled then
+      local inputValue = 1 + (self.hardAccentPressed and 1 or 0) - (self.softAccentPressed and 1 or 0)
+      table.insert(messages, { item = self.index, value = inputValue })
+    end
+    return messages, handled
+  end
+  function LPRedrumEditAccentOverrideItem:setState()
+    if self:isEnabled() then
+      local modeValues = self:modeData().values
+      local retValue   = modeValues[self:remotableValue() + 1]
+      for _, slaveItem in ipairs(self.slaveItems) do
+        slaveItem:sendMidi({ x = retValue })
+      end
+    else
+      for _, slaveItem in ipairs(self.slaveItems) do
+        slaveItem:setState()
+      end
+    end
+  end
+
+  LPRedrumEditStepsOverrideItem = Class(SurfaceItem)
+  function LPRedrumEditStepsOverrideItem:__classname() return 'LPRedrumEditStepsOverrideItem' end
+  function LPRedrumEditStepsOverrideItem:construct(surface, kwargs)
+    local name     = obj.get(kwargs, 'name', true)
+    local val0Item = obj.get(kwargs, 'val0Item', true)
+    local val1Item = obj.get(kwargs, 'val1Item', true)
+    local val2Item = obj.get(kwargs, 'val2Item', true)
+    local val3Item = obj.get(kwargs, 'val3Item', true)
+
+    LPRedrumEditAccentOverrideItem.super.construct(self, surface, {
+      name       = name,
+      min        = 0,
+      max        = 3,
+      input      = {
+        auto_handle = false,
+        type        = 'value'
+      },
+      output     = {
+        auto_handle = false,
+        type        = 'value'
+      },
+      modes      = ledModes,
+      slaveItems = { val0Item, val1Item, val2Item, val3Item }
+    })
+
+    self.stepItems     = {}
+    self.sourceItemMap = {}
+    for i, item in ipairs(self.slaveItems) do
+      self.stepItems[i - 1]          = item
+      self.sourceItemMap[item.index] = i - 1
+    end
+  end
+  function LPRedrumEditStepsOverrideItem:processMidi(midi, sourceItem)
+    local messages, handled = {}, false
+    local pressed           = midi.x > 0
+    local inputValue        = self.sourceItemMap[sourceItem.index]
+    if inputValue ~= nil then
+      handled = true
+    end
+    if handled and pressed then
+      table.insert(messages, { item = self.index, value = inputValue })
+    end
+    return messages, handled
+  end
+  function LPRedrumEditStepsOverrideItem:setState()
+    if self:isEnabled() then
+      local modeValues  = self:modeData().values
+      local remoteValue = self:remotableValue()
+      for itemValue, item in pairs(self.stepItems) do
+        local retValue = itemValue == remoteValue and modeValues[2] or modeValues[1]
+        item:sendMidi({ x = retValue })
+      end
+    else
+      for _, slaveItem in ipairs(self.slaveItems) do
+        slaveItem:setState()
+      end
+    end
+  end
+
+  LPRedrumStepPlayingOverrideItem = Class(SurfaceItem)
+  function LPRedrumStepPlayingOverrideItem:__classname() return 'LPRedrumStepPlayingOverrideItem' end
+  function LPRedrumStepPlayingOverrideItem:construct(surface, kwargs)
+    local name       = obj.get(kwargs, 'name', true)
+    local slaveItems = obj.get(kwargs, 'slaveItems', true)
+
+    LPRedrumStepPlayingOverrideItem.super.construct(self, surface, {
+      name       = name,
+      min        = 0,
+      max        = 63,
+      output     = {
+        auto_handle = false,
+        type        = 'value'
+      },
+      modes      = ledModes,
+      slaveItems = slaveItems
+    })
+
+    self.barItems  = {}
+    self.beatItems = {}
+    for i, item in ipairs(self.slaveItems) do
+      if i <= 4 then
+        self.barItems[i - 1] = item
+      else
+        self.beatItems[i - 1 - 4] = item
+      end
+    end
+  end
+  function LPRedrumStepPlayingOverrideItem:setState()
+    if self:isEnabled() then
+      local remoteValue = self:remotableValue()
+      local bar         = math.floor(bit.mod(remoteValue / 16, 4))
+      local beat        = math.floor(bit.mod(remoteValue, 16) / 4)
+      local sixteenth   = math.floor(bit.mod(remoteValue, 4))
+      local modeValues  = self:modeData().values
+      for itemValue, item in pairs(self.barItems) do
+        local retValue = itemValue == bar and modeValues[2] or modeValues[1]
+        item:sendMidi({ x = retValue })
+      end
+      for itemValue, item in pairs(self.beatItems) do
+        local retValue = itemValue == beat and modeValues[2 + sixteenth] or modeValues[1]
+        item:sendMidi({ x = retValue })
+      end
+    else
+      for _, slaveItem in ipairs(self.slaveItems) do
+        slaveItem:setState()
+      end
+    end
+  end
+
+  local keyboardSetupModes = {
+    layout = {
+      { name = 'push', rowOffset = 5 },
+      { name = 'diatonic', rowOffset = 6 },
+      { name = 'diagonal', rowOffset = 7 },
+      { name = 'octave', rowOffset = 1 },
+    },
+    scale  = {
+      { name = 'minor', intervals = { 0, 2, 3, 5, 7, 8, 10 } },
+      { name = 'major', intervals = { 0, 2, 4, 5, 7, 9, 11 } },
+      { name = 'harmonic', intervals = { 0, 2, 3, 5, 7, 8, 11 } },
+      { name = 'byzantine', intervals = { 0, 2, 3, 6, 7, 8, 11 } },
+      -- special cases
+      { name = 'melodic', intervals = { 0, 2, 3, 5, 7, 9, 11 }, downIntervals = { 0, 2, 3, 5, 7, 8, 10 } },
+      { name = 'chromatic', intervals = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 } },
+    },
+    root   = {
+      { name = 'a', noteOffset = 0 }, { name = 'a#', noteOffset = 1 }, { name = 'b', noteOffset = 2 },
+      { name = 'c', noteOffset = 3 }, { name = 'c#', noteOffset = 4 }, { name = 'd', noteOffset = 5 },
+      { name = 'd#', noteOffset = 6 }, { name = 'e', noteOffset = 7 }, { name = 'f', noteOffset = 8 },
+      { name = 'f#', noteOffset = 9 }, { name = 'g', noteOffset = 10 }, { name = 'g#', noteOffset = 11 },
+    },
+    octave = {
+      { name = '1', octaveOffset = -4 }, { name = '2', octaveOffset = -3 }, { name = '3', octaveOffset = -2 },
+      { name = '4', octaveOffset = -1 }, { name = '5', octaveOffset = 0 }, { name = '6', octaveOffset = 1 },
+    }
+  }
+
+  LPKeyboardOverrideItem   = Class(SurfaceItem)
+  function LPKeyboardOverrideItem:__classname() return 'LPKeyboardOverrideItem' end
+  function LPKeyboardOverrideItem:construct(surface, kwargs)
+    local name       = obj.get(kwargs, 'name', true)
+    local slaveItems = obj.get(kwargs, 'slaveItems', true)
+
+    LPKeyboardOverrideItem.super.construct(self, surface, {
+      name       = name,
+      min        = 0,
+      max        = 1,
+      input      = {
+        auto_handle = false,
+        type        = 'keyboard',
+      },
+      output     = {
+        auto_handle = false,
+        type        = 'value',
+      },
+      modes      = { { name = 'keyboard', values = { colorCodes['00'], colorCodes['21'], colorCodes['03'] } } },
+      slaveItems = slaveItems
+    })
+
+    self.active       = false
+    self.ready        = false
+    self.currentModes = {
+      layout = arr.getByAttrValue(keyboardSetupModes.layout, 'name', 'push'),
+      scale  = arr.getByAttrValue(keyboardSetupModes.scale, 'name', 'minor'),
+      root   = arr.getByAttrValue(keyboardSetupModes.root, 'name', 'a'),
+      octave = arr.getByAttrValue(keyboardSetupModes.octave, 'name', '3'),
+    }
+
+    self:updateGridData()
+  end
+  function LPKeyboardOverrideItem:updateGridData()
+    self.gridData             = {}
+    self.lastPlayedNoteId     = 0
+    self.lastPlayedNoteWentUp = false
+    local scaleLength         = arr.length(self.currentModes.scale.intervals)
+    local rowOffset           = self.currentModes.layout.rowOffset
+    if self.currentModes.layout.name == 'octave' and self.currentModes.scale.name == 'chromatic' then rowOffset = 0 end
+
+    for _, item in pairs(self.slaveItems) do
+      local row, col   = unpack(item.meta.kbCoordinates)
+      local noteId     = row * (8 - rowOffset) + col
+      item.meta.noteId = noteId
+      if not obj.hasKey(self.gridData, noteId) then
+        self.gridData[noteId] = {
+          octave         = math.floor(noteId / scaleLength),
+          intervalIndex  = bit.mod(noteId, scaleLength) + 1,
+          buttons        = {},
+          buttonsPressed = {},
+          notePlayed     = false
+        }
+      end
+      local gridCell = self.gridData[noteId]
+      table.insert(gridCell.buttons, item)
+      gridCell.buttonsPressed[item.index] = false
+    end
+  end
+  function LPKeyboardOverrideItem:updateKeyboard(newScriptItemStates)
+    local newLayout = obj.get(newScriptItemStates, 'KB_Layout', false)
+    local newScale  = obj.get(newScriptItemStates, 'KB_Scale', false)
+    local newRoot   = obj.get(newScriptItemStates, 'KB_Root', false)
+    local newOctave = obj.get(newScriptItemStates, 'KB_Octave', false)
+
+    if newLayout then self.currentModes.layout = arr.getByAttrValue(keyboardSetupModes.layout, 'name', newLayout) end
+    if newScale then self.currentModes.scale = arr.getByAttrValue(keyboardSetupModes.scale, 'name', newScale) end
+    if newRoot then self.currentModes.root = arr.getByAttrValue(keyboardSetupModes.root, 'name', newRoot) end
+    if newOctave then self.currentModes.octave = arr.getByAttrValue(keyboardSetupModes.octave, 'name', newOctave) end
+
+    if newLayout or newScale then self:updateGridData() end
+
+    if self:isEnabled() and not self.active then
+      self:activate()
+    elseif not self:isEnabled() and self.active then
+      self:deactivate()
+    end
+  end
+  function LPKeyboardOverrideItem:activate()
+    self.active      = true
+    local modeValues = self:modeData().values
+    for _, data in pairs(self.gridData) do
+      local value = data.intervalIndex == 1 and modeValues[2] or modeValues[1]
+      for _, button in pairs(data.buttons) do button:sendMidi({ x = value }) end
+    end
+    self.ready = true
+  end
+  function LPKeyboardOverrideItem:deactivate()
+    self.active = false
+    self.ready  = false
+    for _, button in pairs(self.slaveItems) do button:setState() end
+  end
+  function LPKeyboardOverrideItem:isEnabled()
+    return self.surface.scriptState.Scope == 'Master Keyboard' and self.surface.scriptState.Var == 'Keyboard'
+  end
+  function LPKeyboardOverrideItem:getNoteValue(noteId, gridCell)
+    if noteId > self.lastPlayedNoteId then
+      self.lastPlayedNoteWentUp = true
+    elseif noteId < self.lastPlayedNoteId then
+      self.lastPlayedNoteWentUp = false
+    end
+    self.lastPlayedNoteId = noteId
+
+    local intervals       = {}
+    local scale           = self.currentModes.scale
+    if obj.hasKey(scale, 'downIntervals') then
+      intervals = self.lastPlayedNoteWentUp and scale.intervals or scale.downIntervals
+    else
+      intervals = scale.intervals
+    end
+
+    local baseNoteValue    = 69  -- this is the midi value for A4. nice
+    local rootNoteOffset   = self.currentModes.root.noteOffset
+    local modeOctaveOffset = 12 * self.currentModes.octave.octaveOffset
+    local gridOctaveOffset = 12 * gridCell.octave
+    local intervalOffset   = intervals[gridCell.intervalIndex]
+
+    return baseNoteValue + rootNoteOffset + modeOctaveOffset + gridOctaveOffset + intervalOffset
+  end
+  function LPKeyboardOverrideItem:processMidi(midi, sourceItem)
+    local messages, handled                   = {}, false
+    local noteId                              = sourceItem.meta.noteId
+    local gridCell                            = self.gridData[noteId]
+    gridCell.buttonsPressed[sourceItem.index] = midi.x > 0
+    local modeValues                          = self:modeData().values
+    if not gridCell.notePlayed and obj.hasValue(gridCell.buttonsPressed, true) then
+      handled         = true
+      local noteValue = self:getNoteValue(noteId, gridCell)
+      table.insert(messages, { item = self.index, note = noteValue, value = 1, velocity = 100 })
+      gridCell.notePlayed = noteValue
+      local onValue       = modeValues[3]
+      for _, button in pairs(gridCell.buttons) do
+        button:sendMidi({ x = onValue })
+      end
+
+    elseif gridCell.notePlayed and not obj.hasValue(gridCell.buttonsPressed, true) then
+      handled = true
+      table.insert(messages, { item = self.index, note = gridCell.notePlayed, value = 0 })
+      gridCell.notePlayed = false
+      local offValue      = gridCell.intervalIndex == 1 and modeValues[2] or modeValues[1]
+      for _, button in pairs(gridCell.buttons) do
+        button:sendMidi({ x = offValue })
+      end
+    end
+    return messages, handled
+  end
+
+  Launchpad = Class(ControlSurface)
+  function Launchpad:repr() return 'Launchpad' end
+  function Launchpad:construct(manufacturer, modes)
+    Launchpad.super.construct(self)
 
     -- setup State
-    self.state.buttonHoldGroup = {}
+    self.scriptState.buttonHoldGroup = {}
+
     -- Script Items
     do
-      local scriptItemNames = {
-        '_Scope',
-        '_Var',
-        '_KB_Layout',
-        '_KB_Scale',
-        '_KB_Root',
-        '_KB_Octave',
-      }
-      for _, scriptItemName in ipairs(scriptItemNames) do
-        self:addScriptItem(scriptItemName)
-      end
+      self:addItem(ScriptItem, { name = 'Scope' })
+      self:addItem(ScriptItem, { name = 'Var' })
+      self:addItem(ScriptItem, { name = 'KB_Layout' })
+      self:addItem(ScriptItem, { name = 'KB_Scale' })
+      self:addItem(ScriptItem, { name = 'KB_Root' })
+      self:addItem(ScriptItem, { name = 'KB_Octave' })
     end
 
     local function rowChar(row)
@@ -1373,25 +1414,24 @@ do
             local addressByte   = zone == 'Top' and 104 + midiCol or 16 * (midiRow - 1) + midiCol
             local kbCoordinates = zone == 'Grid' and { maxRows - 1 - midiRow, midiCol } or nil
 
-            local buttonItem    = LPButtonItem {
+            local buttonItem    = self:addItem(LPButtonItem, {
               name        = name,
               midiAction  = midiAction,
               addressByte = addressByte,
               meta        = {
                 zone          = zone,
                 kbCoordinates = kbCoordinates
-              }
-            }
-            local ledItem       = LPLedItem { button = buttonItem }
+              },
+              groups      = { zone .. 'Buttons' }
+            })
+
+            self:addItem(LPLedItem, { button = buttonItem, groups = { zone .. 'Leds' } })
 
             if zone == 'Top' then
               table.insert(topButtons, buttonItem)
             elseif zone == 'Grid' then
               table.insert(gridButtons, buttonItem)
             end
-
-            self:addItem { item = buttonItem, groups = { zone .. 'Buttons' } }
-            self:addItem { item = ledItem, groups = { zone .. 'Leds' } }
           end
         end
       end
@@ -1399,30 +1439,203 @@ do
 
     -- Override Items
     do
-      self.keyboard = LPKeyboardOverrideItem { name = 'Keyboard', slaveItems = gridButtons }
-      self:addItem { item = self.keyboard, groups = { 'Keyboard' } }
+      self.keyboard = self:addItem(LPKeyboardOverrideItem, { name = 'Keyboard', slaveItems = gridButtons })
 
       -- Overrides for Redrum
-      self:addItem { item = LPRedrumEditAccentOverrideItem {
+      self:addItem(LPRedrumEditAccentOverrideItem, {
         name           = 'Redrum: Edit Accent',
         hardAccentItem = self:getItemByName('G'),
         softAccentItem = self:getItemByName('H'),
-      } }
-      self:addItem { item = LPRedrumEditStepsOverrideItem {
+      })
+      self:addItem(LPRedrumEditStepsOverrideItem, {
         name     = 'Redrum: Edit Steps',
         val0Item = self:getItemByName('F5'),
         val1Item = self:getItemByName('F6'),
         val2Item = self:getItemByName('F7'),
         val3Item = self:getItemByName('F8'),
-      } }
-      self:addItem { item = LPRedrumStepPlayingOverrideItem {
+      })
+      self:addItem(LPRedrumStepPlayingOverrideItem, {
         name       = 'Redrum: Step Playing',
         slaveItems = topButtons,
-      } }
+      })
+    end
+  end
+  function Launchpad:setState(changedItems, changedItemsPerGroup, newScriptStates)
+    self.keyboard:updateKeyboard(newScriptStates)
+  end
+  function Launchpad:prepareForUse()
+    return { { 176, 0, 1 } }
+  end
+  function Launchpad:releaseFromUse()
+    return { { 176, 0, 0 } }
+  end
+end
+
+-- Livid DS1
+do
+  local ledModes    = {}
+  local colorValues = { o = 0, w = 1, c = 4, p = 8, r = 16, b = 32, y = 64, g = 127 }
+  for color1, value1 in pairs(colorValues) do
+    for color2, value2 in pairs(colorValues) do
+      local modeName = color1 == color2 and color1 or color1 .. color2
+      table.insert(ledModes, { name = modeName, values = { value1, value2 } })
+    end
+  end
+
+  DS1ButtonItem = Class(SurfaceItem)
+  function DS1ButtonItem:__classname() return 'DS1ButtonItem' end
+  function DS1ButtonItem:construct(surface, kwargs)
+    local name        = obj.get(kwargs, 'name', true)
+    local addressByte = obj.get(kwargs, 'addressByte', true)
+    local groups      = obj.get(kwargs, 'groups', false, {})
+
+    DS1ButtonItem.super.construct(self, surface, {
+      name   = name,
+      min    = 0,
+      max    = 1,
+      modes  = ledModes,
+      input  = {
+        type    = 'button',
+        pattern = midi.pattern('n_on', 0, addressByte, '<?x??>?')
+      },
+      output = {
+        auto_handle = false,
+        type        = 'value',
+        pattern     = midi.pattern('n_on', 0, addressByte, 'xx'),
+      },
+      groups = groups
+    })
+  end
+  function DS1ButtonItem:processMidi(midi)
+    local overrideItem = self:getEnabledInputOverride()
+    if overrideItem then
+      return overrideItem:processMidi(midi, self)
+    else
+      local messages, handled = {}, false
+      local pressed           = midi.x > 0
+      local modeData          = self:modeData()
+      if modeData.hold then
+        local remotableItemOn = self:remotableValue() > 0
+        if pressed == remotableItemOn then
+          handled = true
+        end
+        local holdGroup = self.surface.scriptState.buttonHoldGroup
+        if pressed and not arr.hasValue(holdGroup, self.index) then
+          table.insert(holdGroup, self.index)
+        elseif arr.hasValue(holdGroup, self.index) then
+          table.remove(holdGroup, arr.indexOfValue(holdGroup, self.index))
+          table.insert(messages, { item = self.index, value = 1 })
+        end
+      end
+      return messages, handled
+    end
+  end
+  function DS1ButtonItem:setState()
+    local retValue = 0
+    if self:isEnabled() then
+      local modeValues = self:modeData().values
+      retValue         = modeValues[self:remotableValue() + 1]
+    end
+    self:sendMidi({ x = retValue })
+  end
+
+  DS1 = Class(ControlSurface)
+  function DS1:repr() return 'DS1' end
+  function DS1:construct(manufacturer, model)
+    DS1.super.construct(self)
+
+    -- Channels 1 - 8
+    local channelCount       = 8
+    local rotariesPerChannel = 5
+    local buttonsPerChannel  = 2
+    for channelNr = 1, channelCount do
+      local itemNamePrefix = str.f('Ch %s: ', channelNr)
+      local channelId      = channelNr - 1
+
+      -- Fader
+      self:addItem(SurfaceItem, {
+        name = itemNamePrefix .. 'Fader', min = 0, max = 127, input = {
+          type    = 'value',
+          pattern = midi.pattern('cc', 0, num.fromHex('29') + channelId, 'xx')
+        } })
+
+      -- Rotaries
+      for rotaryNr = 1, rotariesPerChannel do
+        self:addItem(SurfaceItem, {
+          name = itemNamePrefix .. 'R' .. rotaryNr, min = 0, max = 127, input = {
+            type    = 'value',
+            pattern = midi.pattern('cc', 0, channelId * rotariesPerChannel + rotaryNr, 'xx')
+          } })
+      end
+
+      -- Buttons
+      for buttonNr = 1, buttonsPerChannel do
+        local buttonId = buttonNr - 1
+        self:addItem(DS1ButtonItem, {
+          name        = itemNamePrefix .. 'B' .. buttonNr,
+          addressByte = channelId * buttonsPerChannel + buttonId,
+          groups      = { 'Buttons' }
+        })
+      end
+    end
+
+    -- Main section
+    local rotariesMainSection   = 4
+    local buttonRowsMainSection = 3
+    local buttonColsMainSection = 3
+    local encodersMainSection   = 4
+    do
+      local itemNamePrefix = 'Main: '
+      local mainChannelNr  = channelCount + 1
+      local channelId      = mainChannelNr - 1
+
+      -- Fader
+      self:addItem(SurfaceItem, {
+        name = itemNamePrefix .. 'Fader', min = 0, max = 127, input = {
+          type    = 'value',
+          pattern = midi.pattern('cc', 0, num.fromHex('29') + channelId, 'xx')
+        } })
+
+      -- Rotaries
+      for rotaryNr = 1, rotariesMainSection do
+        self:addItem(SurfaceItem, {
+          name = itemNamePrefix .. 'R' .. rotaryNr, min = 0, max = 127, input = {
+            type    = 'value',
+            pattern = midi.pattern('cc', 0, num.fromHex('31') + rotaryNr, 'xx')
+          } })
+      end
+
+      -- Buttons
+      for rowNr = 1, buttonRowsMainSection do
+        local rowId = rowNr - 1
+        for colNr = 1, buttonColsMainSection do
+          local colId = colNr - 1
+          self:addItem(DS1ButtonItem, {
+            name        = itemNamePrefix .. 'B' .. rowId * buttonColsMainSection + colNr,
+            addressByte = num.fromHex('10') + rowId + buttonColsMainSection * colId,
+            groups      = { 'Buttons' }
+          })
+        end
+      end
+
+      -- Buttons
+      for encoderNr = 1, encodersMainSection do
+        local encoderId = encoderNr - 1
+        self:addItem(SurfaceItem, {
+          name = itemNamePrefix .. 'E' .. encoderNr, input = {
+            type    = 'delta',
+            pattern = midi.pattern('cc', 0, num.fromHex('60') + encoderId, '?<??x?>'),
+            value   = '2*x-1'
+          } })
+      end
     end
 
   end
-  function LaunchPad:handleChangedItems(changedItems, changedGroupItems, newScriptItemStates)
-    self.keyboard:updateKeyboard(newScriptItemStates)
+  function DS1:releaseFromUse()
+    local turnOffEvents = {}
+    for _, index in ipairs(self.itemGroups.Buttons) do
+      table.insert(turnOffEvents, remote.make_midi(self.items[index].output.pattern, { x = 0 }))
+    end
+    return turnOffEvents
   end
 end

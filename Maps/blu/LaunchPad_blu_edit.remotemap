@@ -33,38 +33,38 @@ Define Group	Scale	Minor	Major	Harmonic	Byzantine	Melodic	Chromatic
 Define Group	Root	A	A#	B	C	C#	D	D#	E	F	F#	G	G#
 Define Group	Octave	3	1	2	4	5	6
 
-Map	_Scope		"Master Keyboard"
-Map	_Var		"Keyboard"			Keyboard
-Map	_Var		"Setup"			GridSetup
+Map	$Scope		"Master Keyboard"
+Map	$Var		"Keyboard"			Keyboard
+Map	$Var		"Setup"			GridSetup
 
-Map	_KB_Layout		"push"			Push
-Map	_KB_Layout		"diatonic"			Diatonic
-Map	_KB_Layout		"diagonal"			Diagonal
-Map	_KB_Layout		"octave"			Octave
-Map	_KB_Scale		"minor"			Minor
-Map	_KB_Scale		"major"			Major
-Map	_KB_Scale		"harmonic"			Harmonic
-Map	_KB_Scale		"byzantine"			Byzantine
-Map	_KB_Scale		"melodic"			Melodic
-Map	_KB_Scale		"chromatic"			Chromatic
-Map	_KB_Root		"a"			A
-Map	_KB_Root		"a#"			A#
-Map	_KB_Root		"b"			B
-Map	_KB_Root		"c"			C
-Map	_KB_Root		"c#"			C#
-Map	_KB_Root		"d"			D
-Map	_KB_Root		"d#"			D#
-Map	_KB_Root		"e"			E
-Map	_KB_Root		"f"			F
-Map	_KB_Root		"f#"			F#
-Map	_KB_Root		"g"			G
-Map	_KB_Root		"g#"			G#
-Map	_KB_Octave		"1"			1
-Map	_KB_Octave		"2"			2
-Map	_KB_Octave		"3"			3
-Map	_KB_Octave		"4"			4
-Map	_KB_Octave		"5"			5
-Map	_KB_Octave		"6"			6
+Map	$KB_Layout		"push"			Push
+Map	$KB_Layout		"diatonic"			Diatonic
+Map	$KB_Layout		"diagonal"			Diagonal
+Map	$KB_Layout		"octave"			Octave
+Map	$KB_Scale		"minor"			Minor
+Map	$KB_Scale		"major"			Major
+Map	$KB_Scale		"harmonic"			Harmonic
+Map	$KB_Scale		"byzantine"			Byzantine
+Map	$KB_Scale		"melodic"			Melodic
+Map	$KB_Scale		"chromatic"			Chromatic
+Map	$KB_Root		"a"			A
+Map	$KB_Root		"a#"			A#
+Map	$KB_Root		"b"			B
+Map	$KB_Root		"c"			C
+Map	$KB_Root		"c#"			C#
+Map	$KB_Root		"d"			D
+Map	$KB_Root		"d#"			D#
+Map	$KB_Root		"e"			E
+Map	$KB_Root		"f"			F
+Map	$KB_Root		"f#"			F#
+Map	$KB_Root		"g"			G
+Map	$KB_Root		"g#"			G#
+Map	$KB_Octave		"1"			1
+Map	$KB_Octave		"2"			2
+Map	$KB_Octave		"3"			3
+Map	$KB_Octave		"4"			4
+Map	$KB_Octave		"5"			5
+Map	$KB_Octave		"6"			6
 
 Map	A		Var=GridSetup		11	Keyboard
 Map	A		Var=Keyboard		22	GridSetup
@@ -120,12 +120,12 @@ Map	H		Octave=1		1130
 Scope	Propellerheads	Redrum Drum Computer
 Define Group	Var	Sequencer	Pattern
 
-Map	_Scope		"Redrum Drum Computer"
-Map	_Var		"Sequencer"			Sequencer
-Map	_Var		"Pattern"			Pattern
+Map	$Scope		"Redrum Drum Computer"
+Map	$Var		"Sequencer"			Sequencer
+Map	$Var		"Pattern"			Pattern
 
 Map	A		0
-Map	B		0
+// Map	B		0
 Map	C		0
 Map	D		0
 Map	E		0
@@ -233,3 +233,5 @@ Map	B5		Select Drum 7		0021
 Map	C5		Select Drum 8		0021
 Map	D5		Select Drum 9		0021
 Map	E5		Select Drum 10		0021
+
+Map	B		"testestest"		3211

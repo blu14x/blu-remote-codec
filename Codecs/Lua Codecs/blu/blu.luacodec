@@ -4,12 +4,23 @@ function remote_supported_control_surfaces()
   return {
     {
       manufacturer    = 'blu',
-      model           = 'LaunchPad',
+      model           = 'Launchpad',
+      source          = 'blu_remote_source.lua',
+      in_ports        = { { description = 'In  Port' } },
+      out_ports       = { { description = 'Out Port', optional = false } },
+      has_keyboard    = true,
+      setup_info_text = [[
+          1.2.0
+      ]],
+    },
+    {
+      manufacturer    = 'blu',
+      model           = 'DS1',
       source          = 'blu_remote_source.lua',
       in_ports        = { { description = 'In  Port' } },
       out_ports       = { { description = 'Out Port', optional = false } },
       setup_info_text = [[
-          v2 Alpha
+          1.2.0
       ]],
     },
   }
