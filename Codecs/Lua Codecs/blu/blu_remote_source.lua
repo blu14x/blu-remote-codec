@@ -530,7 +530,7 @@ do
 
         --   SYSEX Events
         if _event[1] == midi.sysexStart and _event[_event.size] == midi.sysexEnd then
-          messages, handled = SURFACE:processSysexEvent(_event)
+          handled = SURFACE:processSysexEvent(_event)
 
           -- Other Events
         else
@@ -881,6 +881,8 @@ getSurface = function(manufacturer, model)
     return Launchpad(manufacturer, model)
   elseif model == 'DS1' then
     return DS1(manufacturer, model)
+  elseif model == 'X-Touch' then
+    return XTouch(manufacturer, model)
   end
 end
 
@@ -1634,5 +1636,32 @@ do
       table.insert(turnOffEvents, remote.make_midi(self.items[index].output.pattern, { x = 0 }))
     end
     return turnOffEvents
+  end
+end
+
+-- Behringer X-Touch
+do
+  XTouch = Class(ControlSurface)
+  function XTouch:repr() return 'XTouch' end
+  function XTouch:processSysexEvent(event)
+    -- XCTL Handshake
+    local eventValues = {}
+    for k, v in pairs(event) do
+      if type(k) == "number" then
+        eventValues[k] = v
+      end
+    end
+    local handshake = {
+      request    = { midi.sysexStart, 0, 32, 50, 88, 84, 0, midi.sysexEnd },
+      response   = { midi.sysexStart, 0, 0, 102, 20, 0, midi.sysexEnd },
+      validation = { midi.sysexStart, 0, 0, 102, 88, 1, 48, 49, 53, 54, 52, 48, 53, 52, 56, 69, 68, midi.sysexEnd },
+    }
+    if arr.equals(eventValues, handshake.request) then
+      self:addToMidiQueue(handshake.response)
+      return true
+    elseif arr.equals(eventValues, handshake.validation) then
+      return true
+    end
+    return false
   end
 end

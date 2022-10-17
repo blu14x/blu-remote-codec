@@ -1,0 +1,29 @@
+Propellerhead Remote Mapping File
+File Format Version	1.0.0
+Control Surface Manufacturer	blu
+Control Surface Model	X-Touch
+Map Version	1.2.0
+
+
+// ┌─────────────────────────────────────────┐
+// │                                         │
+// │      <<  LaunchPad  [blu edit]  >>      │
+// │                 v 1.2.0                 │
+// │                                         │
+// │           Reason Remote Codec           │
+// │                   for                   │
+// │  Novation`s Launchpad,  DAW Controller  │
+// │                                         │
+// │          made by  Benjamin Lux          │
+// │   shared at  https://github.com/blu93   │
+// │                                         │
+// │   created and tested with  Reason v12   │
+// │                                         │
+// └─────────────────────────────────────────┘
+
+
+// Scope	Manufacturer	Model
+// Define Group	Group Name	Group_1	Group_2	…
+// Map	Control Surface Item	Key	Remotable Item	Scale	Mode	Group_1	Group_2	…
+
+Scope	Propellerheads	Reason Master Section
