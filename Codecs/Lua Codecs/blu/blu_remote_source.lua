@@ -475,14 +475,11 @@ do
         }
         return byte_map[action] + channel
       end,
-      pattern           = function(action, channel, databyte1, databyte2)
-        -- returns a pattern string for midi input and output definitions
-        local pattern = num.toHex(midi.getStatusByte(action, channel))
-        for _, databyte in ipairs({ databyte1, databyte2 }) do
-          local parsed_byte = type(databyte) == "number" and num.toHex(databyte) or databyte
-          pattern           = pattern .. parsed_byte
-        end
-        return pattern
+      pattern           = function(action, channel, addressByte, dataByte)
+        local _statusByte  = num.toHex(midi.getStatusByte(action, channel))
+        local _addressByte = type(addressByte) == "string" and addressByte or num.toHex(addressByte)
+        local _dataByte    = type(dataByte) == "string" and dataByte or num.toHex(dataByte)
+        return _statusByte .. _addressByte .. _dataByte
       end
     }
   end
