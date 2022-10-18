@@ -888,7 +888,6 @@ end
 
 -- Novation Launchpad (Mk1)
 do
-
   local maxBrightness = 3
   local colorCodes    = {}
   local ledModes      = {}
@@ -1641,6 +1640,79 @@ end
 
 -- Behringer X-Touch
 do
+  local encoderLedModeData     = {
+    { name      = "dot",
+      abstracts = { "x............", ".x...........", "..x..........", "...x.........", "....x........",
+                    ".....x.......", "......x......", ".......x.....", "........x....", ".........x...",
+                    "..........x..", "...........x.", "............x" } },
+    { name      = "dotb",
+      abstracts = { "x............", "xx...........", ".x...........", ".xx..........", "..x..........",
+                    "..xx.........", "...x.........", "...xx........", "....x........", "....xx.......",
+                    ".....x.......", ".....xx......", "......x......", "......xx.....", ".......x.....",
+                    ".......xx....", "........x....", "........xx...", ".........x...", ".........xx..",
+                    "..........x..", "..........xx.", "...........x.", "...........xx", "............x" } },
+    { name      = "fill",
+      abstracts = { "x............", "xx...........", "xxx..........", "xxxx.........", "xxxxx........",
+                    "xxxxxx.......", "xxxxxxx......", "xxxxxxxx.....", "xxxxxxxxx....", "xxxxxxxxxx...",
+                    "xxxxxxxxxxx..", "xxxxxxxxxxxx.", "xxxxxxxxxxxxx" } },
+    { name      = "bip",
+      abstracts = { "xxxxxxx......", ".xxxxxx......", "..xxxxx......", "...xxxx......", "....xxx......",
+                    ".....xx......", "......x......", "......xx.....", "......xxx....", "......xxxx...",
+                    "......xxxxx..", "......xxxxxx.", "......xxxxxxx" } },
+    { name      = "pan",
+      abstracts = { "xxxxxx.......", "xxxxxxx......", "xxxxxxxx.....", "xxxxxxxxx....", "xxxxxxxxxx...",
+                    "xxxxxxxxxxx..", ".xxxxxxxxxxx.", "..xxxxxxxxxxx", "...xxxxxxxxxx", "....xxxxxxxxx",
+                    ".....xxxxxxxx", "......xxxxxxx", ".......xxxxxx" } },
+    { name      = "pani",
+      abstracts = { "......xxxxxxx", ".......xxxxxx", "........xxxxx", ".........xxxx", "..........xxx",
+                    "...........xx", "x...........x", "xx...........", "xxx..........", "xxxx.........",
+                    "xxxxx........", "xxxxxx.......", "xxxxxxx......" } },
+    { name      = "panf",
+      abstracts = { "x............", "xx...........", "xxx..........", "xxxx.........", "xxxxx........",
+                    "xxxxxx.......", "xxxxxxx......", "xxxxxxxx.....", "xxxxxxxxx....", "xxxxxxxxxx...",
+                    "xxxxxxxxxxx..", "xxxxxxxxxxxx.", "xxxxxxxxxxxxx", ".xxxxxxxxxxxx", "..xxxxxxxxxxx",
+                    "...xxxxxxxxxx", "....xxxxxxxxx", ".....xxxxxxxx", "......xxxxxxx", ".......xxxxxx",
+                    "........xxxxx", ".........xxxx", "..........xxx", "...........xx", "............x" } },
+    { name      = "spread",
+      abstracts = { "......x......", ".....x.x.....", "....x...x....", "...x.....x...", "..x.......x..",
+                    ".x.........x.", "x...........x" } },
+    { name      = "spreadb",
+      abstracts = { "......x......", ".....xxx.....", ".....x.x.....", "....xx.xx....", "....x...x....",
+                    "...xx...xx...", "...x.....x...", "..xx.....xx..", "..x.......x..", ".xx.......xx.",
+                    ".x.........x.", "xx.........xx", "x...........x" } },
+    { name      = "spreadf",
+      abstracts = { "......x......", ".....xxx.....", "....xxxxx....", "...xxxxxxx...", "..xxxxxxxxx..",
+                    ".xxxxxxxxxxx.", "xxxxxxxxxxxxx" } },
+
+  }
+  local encoderLedSideModeData = {
+    { name      = "dot",
+      abstracts = { "x.....", ".x....", "..x...", "...x..", "....x.", ".....x" } },
+    { name      = "rms_gtcmp",
+      abstracts = { "......", "x.....", ".x....", "..x...", "...x..", "....x." } },
+    { name      = "dotb",
+      abstracts = { "x.....", "xx....", ".x....", ".xx...", "..x...", "..xx..",
+                    "...x..", "...xx.", "....x.", "....xx", ".....x" } },
+    { name      = "fill",
+      abstracts = { "x.....", "xx....", "xxx...", "xxxx..", "xxxxx.", "xxxxxx" } },
+  }
+
+  local function valueFromAbstract(abstract)
+    return tonumber(abstract:gsub('x', '1'):gsub('%.', '0'):reverse(), 2)
+  end
+
+  local encoderModes = {}
+  for _, data in pairs(encoderLedModeData) do
+    local values = {}
+    for i, abstract in pairs(data.abstracts) do
+      local valueLeft  = valueFromAbstract(abstract:sub(1, 7))
+      local valueRight = valueFromAbstract(abstract:sub(8, 13))
+      table.insert(values, { valueLeft, valueRight })
+    end
+    table.insert(encoderModes, { name = data.name, values = values })
+  end
+  debugger(encoderModes)
+
   XTouch = Class(ControlSurface)
   function XTouch:repr() return 'XTouch' end
   function XTouch:processSysexEvent(event)
