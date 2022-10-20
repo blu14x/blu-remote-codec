@@ -145,6 +145,9 @@ do
       programmingError = function(errorMessage, level)
         err.base('Programming Error', errorMessage, (level or 1) + 2)
       end,
+      remoteMapError   = function(errorMessage, level)
+        err.base('Remote Map Error', errorMessage, (level or 1) + 2)
+      end,
     }
     asrt         = {
       argType = function(val, expectedType, funcName, argName, level)
@@ -496,7 +499,10 @@ do
       set_state        = function(changedItems)
         -- Handle individual changed item
         for _, index in ipairs(changedItems) do
-          SURFACE.items[index]:setState()
+          local item = SURFACE.items[index]
+          if not VirtualItem.evaluate(item) then
+            item:setState()
+          end
         end
 
         -- Collect changed items by group
@@ -535,7 +541,13 @@ do
           -- Other Events
         else
           local item, midi = SURFACE:translateMidiEvent(_event)
-          if item then messages, handled = item:processMidi(midi) end
+          if item then
+            if item.boundVirtualItem then
+              messages, handled = item.boundVirtualItem:processMidi(midi, item)
+            else
+              messages, handled = item:processMidi(midi)
+            end
+          end
         end
 
         -- handle messages
@@ -807,9 +819,6 @@ do
     function SurfaceItem:onAutoInput()
       return
     end
-    function SurfaceItem:linkVirtualItem()
-
-    end
     -- utility wrapper methods
     function SurfaceItem:modeData()
       return #self.modes and self.modes[remote.get_item_mode(self.index)] or nil
@@ -845,6 +854,49 @@ do
       return remote.get_item_value(self.index)
     end
 
+    VirtualItem = Class(SurfaceItem)
+    function VirtualItem:__classname() return 'VirtualItem' end
+    function VirtualItem:repr() return self.name end
+    function VirtualItem:construct(surface, kwargs)
+      local name  = obj.get(kwargs, 'name', true)
+      kwargs.name = '_' .. name
+      VirtualItem.super.construct(self, surface, kwargs)
+      self.internalName    = name
+      self.boundItems      = {}
+      self.boundItemValues = {}
+    end
+    function VirtualItem.bind(item, virtualItemName, value)
+      local virtualItem = item.surface:getItemByName(virtualItemName)
+      if not virtualItem then
+        err.remoteMapError(str.f('VirtualItem of the name "%s" does not exist', virtualItemName))
+      end
+      local cleanValue                        = tonumber(value) or value
+      virtualItem.boundItems[cleanValue]      = item
+      virtualItem.boundItemValues[item.index] = cleanValue
+      item.boundVirtualItem                   = virtualItem
+    end
+    function VirtualItem.unbind(item)
+      if not item.boundVirtualItem then return end
+      local virtualItem                       = item.boundVirtualItem
+      local lastBoundValue                    = virtualItem.boundItemValues[item.index]
+      virtualItem.boundItems[lastBoundValue]  = nil
+      virtualItem.boundItemValues[item.index] = nil
+      item.boundVirtualItem                   = nil
+    end
+    function VirtualItem.evaluate(item)
+      -- in the remotemap assign a string eg "bind:_RedrumEditAccent:soft"
+      local bindText, virtualItemName, value = unpack(str.split(item:remotableTextValue(), { sep = ':' }))
+      if bindText == 'bind' then
+        -- for the case where last assignment was a virtual item as well, we unbind it first
+        VirtualItem.unbind(item)
+        VirtualItem.bind(item, virtualItemName, value)
+        return true
+      else
+        VirtualItem.unbind(item)
+        return false
+      end
+    end
+
     ScriptItem = Class(SurfaceItem)
     function ScriptItem:__classname() return 'ScriptItem' end
     function ScriptItem:repr() return self.name end
@@ -864,15 +916,6 @@ do
       self.surface.scriptState[self.internalName .. '_prev'] = self.surface.scriptState[self.internalName]
       self.surface.scriptState[self.internalName]            = newValue
     end
-
-    VirtualItem = Class(SurfaceItem)
-    function VirtualItem:__classname() return 'VirtualItem' end
-    function VirtualItem:repr() return self.name end
-    function VirtualItem:construct(surface, kwargs)
-      kwargs.name = '_' .. obj.get(kwargs, 'name', true)
-      VirtualItem.super.construct(self, surface, kwargs)
-    end
-
   end
 end
 
@@ -911,14 +954,6 @@ do
       end
     end
   end
-  table.insert(ledModes, {
-    name   = 'redrumEditAccent',
-    values = { colorCodes['13'], colorCodes['32'], colorCodes['20'] }
-  })
-  table.insert(ledModes, {
-    name   = 'redrumStepPlaying',
-    values = { colorCodes['00'], colorCodes['21'], colorCodes['03'], colorCodes['02'], colorCodes['01'] }
-  })
   table.insert(ledModes, {
     name   = 'redrumStepOut',
     values = { colorCodes['00'], colorCodes['13'], colorCodes['32'], colorCodes['20'], colorCodes['02'] }
@@ -1023,176 +1058,112 @@ do
     end
   end
 
-  LPRedrumEditAccentOverrideItem = Class(SurfaceItem)
-  function LPRedrumEditAccentOverrideItem:__classname() return 'LPRedrumEditAccentOverrideItem' end
-  function LPRedrumEditAccentOverrideItem:construct(surface, kwargs)
-    local name           = obj.get(kwargs, 'name', true)
-    local hardAccentItem = obj.get(kwargs, 'hardAccentItem', true)
-    local softAccentItem = obj.get(kwargs, 'softAccentItem', true)
-
-    LPRedrumEditAccentOverrideItem.super.construct(self, surface, {
-      name       = name,
-      min        = 0,
-      max        = 2,
-      input      = {
+  LPRedrumEditAccentVirtualItem = Class(VirtualItem)
+  function LPRedrumEditAccentVirtualItem:__classname() return 'LPRedrumEditAccentVirtualItem' end
+  function LPRedrumEditAccentVirtualItem:construct(surface, kwargs)
+    LPRedrumEditAccentVirtualItem.super.construct(self, surface, {
+      name   = obj.get(kwargs, 'name', true),
+      min    = 0,
+      max    = 2,
+      input  = {
         auto_handle = false,
         type        = 'value'
       },
-      output     = {
+      output = {
         auto_handle = false,
         type        = 'value',
       },
-      modes      = ledModes,
-      slaveItems = { hardAccentItem, softAccentItem }
     })
-
-    self.accentItems       = {
-      hard = hardAccentItem,
-      soft = softAccentItem
+    self.retValues = { colorCodes['13'], colorCodes['32'], colorCodes['20'] }
+    self.pressed   = {
+      hard = false,
+      soft = false
     }
-    self.sourceItemMap     = {
-      [hardAccentItem.index] = 'hard',
-      [softAccentItem.index] = 'soft'
-    }
-    self.hardAccentPressed = false
-    self.softAccentPressed = false
   end
-  function LPRedrumEditAccentOverrideItem:processMidi(midi, sourceItem)
-    local messages, handled = {}, false
-    local pressed           = midi.x > 0
-    local accentType        = self.sourceItemMap[sourceItem.index]
-    if accentType == 'hard' then
-      self.hardAccentPressed = pressed
-      handled                = true
-    elseif accentType == 'soft' then
-      self.softAccentPressed = pressed
-      handled                = true
-    end
-    if handled then
-      local inputValue = 1 + (self.hardAccentPressed and 1 or 0) - (self.softAccentPressed and 1 or 0)
-      table.insert(messages, { item = self.index, value = inputValue })
-    end
-    return messages, handled
+  function LPRedrumEditAccentVirtualItem:processMidi(midi, sourceItem)
+    local pressed            = midi.x > 0
+    local boundValue         = self.boundItemValues[sourceItem.index]
+    self.pressed[boundValue] = pressed
+    local inputValue         = 1 + (self.pressed.hard and 1 or 0) - (self.pressed.soft and 1 or 0)
+    return { { item = self.index, value = inputValue } }, true
   end
-  function LPRedrumEditAccentOverrideItem:setState()
+  function LPRedrumEditAccentVirtualItem:setState()
     if self:isEnabled() then
-      local modeValues = self:modeData().values
-      local retValue   = modeValues[self:remotableValue() + 1]
-      for _, slaveItem in ipairs(self.slaveItems) do
-        slaveItem:sendMidi({ x = retValue })
-      end
-    else
-      for _, slaveItem in ipairs(self.slaveItems) do
-        slaveItem:setState()
-      end
-    end
-  end
-
-  LPRedrumEditStepsOverrideItem = Class(SurfaceItem)
-  function LPRedrumEditStepsOverrideItem:__classname() return 'LPRedrumEditStepsOverrideItem' end
-  function LPRedrumEditStepsOverrideItem:construct(surface, kwargs)
-    local name     = obj.get(kwargs, 'name', true)
-    local val0Item = obj.get(kwargs, 'val0Item', true)
-    local val1Item = obj.get(kwargs, 'val1Item', true)
-    local val2Item = obj.get(kwargs, 'val2Item', true)
-    local val3Item = obj.get(kwargs, 'val3Item', true)
-
-    LPRedrumEditAccentOverrideItem.super.construct(self, surface, {
-      name       = name,
-      min        = 0,
-      max        = 3,
-      input      = {
-        auto_handle = false,
-        type        = 'value'
-      },
-      output     = {
-        auto_handle = false,
-        type        = 'value'
-      },
-      modes      = ledModes,
-      slaveItems = { val0Item, val1Item, val2Item, val3Item }
-    })
-
-    self.stepItems     = {}
-    self.sourceItemMap = {}
-    for i, item in ipairs(self.slaveItems) do
-      self.stepItems[i - 1]          = item
-      self.sourceItemMap[item.index] = i - 1
-    end
-  end
-  function LPRedrumEditStepsOverrideItem:processMidi(midi, sourceItem)
-    local messages, handled = {}, false
-    local pressed           = midi.x > 0
-    local inputValue        = self.sourceItemMap[sourceItem.index]
-    if inputValue ~= nil then
-      handled = true
-    end
-    if handled and pressed then
-      table.insert(messages, { item = self.index, value = inputValue })
-    end
-    return messages, handled
-  end
-  function LPRedrumEditStepsOverrideItem:setState()
-    if self:isEnabled() then
-      local modeValues  = self:modeData().values
-      local remoteValue = self:remotableValue()
-      for itemValue, item in pairs(self.stepItems) do
-        local retValue = itemValue == remoteValue and modeValues[2] or modeValues[1]
+      local retValue = self.retValues[self:remotableValue() + 1]
+      for _, item in pairs(self.boundItems) do
         item:sendMidi({ x = retValue })
       end
-    else
-      for _, slaveItem in ipairs(self.slaveItems) do
-        slaveItem:setState()
-      end
     end
   end
 
-  LPRedrumStepPlayingOverrideItem = Class(SurfaceItem)
-  function LPRedrumStepPlayingOverrideItem:__classname() return 'LPRedrumStepPlayingOverrideItem' end
-  function LPRedrumStepPlayingOverrideItem:construct(surface, kwargs)
-    local name       = obj.get(kwargs, 'name', true)
-    local slaveItems = obj.get(kwargs, 'slaveItems', true)
-
-    LPRedrumStepPlayingOverrideItem.super.construct(self, surface, {
-      name       = name,
-      min        = 0,
-      max        = 63,
-      output     = {
+  LPRedrumEditStepsVirtualItem = Class(VirtualItem)
+  function LPRedrumEditStepsVirtualItem:__classname() return 'LPRedrumEditStepsVirtualItem' end
+  function LPRedrumEditStepsVirtualItem:construct(surface, kwargs)
+    LPRedrumEditStepsVirtualItem.super.construct(self, surface, {
+      name   = obj.get(kwargs, 'name', true),
+      min    = 0,
+      max    = 3,
+      input  = {
         auto_handle = false,
         type        = 'value'
       },
-      modes      = ledModes,
-      slaveItems = slaveItems
+      output = {
+        auto_handle = false,
+        type        = 'value',
+      },
     })
-
-    self.barItems  = {}
-    self.beatItems = {}
-    for i, item in ipairs(self.slaveItems) do
-      if i <= 4 then
-        self.barItems[i - 1] = item
-      else
-        self.beatItems[i - 1 - 4] = item
+  end
+  function LPRedrumEditStepsVirtualItem:processMidi(midi, sourceItem)
+    local messages, handled = {}, false
+    local pressed           = midi.x > 0
+    local inputValue        = self.boundItemValues[sourceItem.index]
+    if pressed then
+      handled = true
+      table.insert(messages, { item = self.index, value = inputValue })
+    end
+    return messages, handled
+  end
+  function LPRedrumEditStepsVirtualItem:setState()
+    if self:isEnabled() then
+      local remoteValue = self:remotableValue()
+      for itemValue, item in pairs(self.boundItems) do
+        local modeValues = item:modeData().values
+        local retValue   = itemValue == remoteValue and modeValues[2] or modeValues[1]
+        item:sendMidi({ x = retValue })
       end
     end
   end
-  function LPRedrumStepPlayingOverrideItem:setState()
+
+  LPRedrumStepPlayingVirtualItem = Class(VirtualItem)
+  function LPRedrumStepPlayingVirtualItem:__classname() return 'LPRedrumStepPlayingVirtualItem' end
+  function LPRedrumStepPlayingVirtualItem:construct(surface, kwargs)
+    LPRedrumStepPlayingVirtualItem.super.construct(self, surface, {
+      name   = obj.get(kwargs, 'name', true),
+      min    = 0,
+      max    = 63,
+      output = {
+        auto_handle = false,
+        type        = 'value',
+      },
+    })
+    self.retValues = { colorCodes['00'], colorCodes['21'], colorCodes['03'], colorCodes['02'], colorCodes['01'] }
+  end
+  function LPRedrumStepPlayingVirtualItem:setState()
     if self:isEnabled() then
       local remoteValue = self:remotableValue()
       local bar         = math.floor(bit.mod(remoteValue / 16, 4))
       local beat        = math.floor(bit.mod(remoteValue, 16) / 4)
       local sixteenth   = math.floor(bit.mod(remoteValue, 4))
-      local modeValues  = self:modeData().values
-      for itemValue, item in pairs(self.barItems) do
-        local retValue = itemValue == bar and modeValues[2] or modeValues[1]
+      for itemValue, item in pairs(self.boundItems) do
+        local division, index = unpack(str.split(itemValue, { sep = '/' }))
+        local value           = tonumber(index)
+        local retValue        = self.retValues[1]
+        if division == 'bar' then
+          retValue = value == bar and self.retValues[2] or self.retValues[1]
+        elseif division == 'beat' then
+          retValue = value == beat and self.retValues[2 + sixteenth] or self.retValues[1]
+        end
         item:sendMidi({ x = retValue })
-      end
-      for itemValue, item in pairs(self.beatItems) do
-        local retValue = itemValue == beat and modeValues[2 + sixteenth] or modeValues[1]
-        item:sendMidi({ x = retValue })
-      end
-    else
-      for _, slaveItem in ipairs(self.slaveItems) do
-        slaveItem:setState()
       end
     end
   end
@@ -1435,28 +1406,11 @@ do
       end
     end
 
-    -- Override Items
-    do
-      self.keyboard = self:addItem(LPKeyboardOverrideItem, { name = 'Keyboard', slaveItems = gridButtons })
+    self.keyboard = self:addItem(LPKeyboardOverrideItem, { name = 'Keyboard', slaveItems = gridButtons })
+    self:addItem(LPRedrumEditAccentVirtualItem, { name = 'RedrumEditAccent' })
+    self:addItem(LPRedrumEditStepsVirtualItem, { name = 'RedrumEditSteps' })
+    self:addItem(LPRedrumStepPlayingVirtualItem, { name = 'RedrumStepPlaying' })
 
-      -- Overrides for Redrum
-      self:addItem(LPRedrumEditAccentOverrideItem, {
-        name           = 'Redrum: Edit Accent',
-        hardAccentItem = self:getItemByName('G'),
-        softAccentItem = self:getItemByName('H'),
-      })
-      self:addItem(LPRedrumEditStepsOverrideItem, {
-        name     = 'Redrum: Edit Steps',
-        val0Item = self:getItemByName('F5'),
-        val1Item = self:getItemByName('F6'),
-        val2Item = self:getItemByName('F7'),
-        val3Item = self:getItemByName('F8'),
-      })
-      self:addItem(LPRedrumStepPlayingOverrideItem, {
-        name       = 'Redrum: Step Playing',
-        slaveItems = topButtons,
-      })
-    end
   end
   function Launchpad:setState(changedItems, changedItemsPerGroup, newScriptStates)
     self.keyboard:updateKeyboard(newScriptStates)
@@ -1711,7 +1665,7 @@ do
     end
     table.insert(encoderModes, { name = data.name, values = values })
   end
-  debugger(encoderModes)
+  --debugger(encoderModes)
 
   XTouch = Class(ControlSurface)
   function XTouch:repr() return 'XTouch' end

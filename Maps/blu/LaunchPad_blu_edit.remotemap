@@ -113,8 +113,8 @@ Map	C		Octave=6		1130
 Map	D		Octave=5		1130
 Map	E		Octave=4		1130
 Map	F		Octave=3		1130
-Map	G		Octave=2		1130
-Map	H		Octave=1		1130
+// Map	G		Octave=2		1130
+// Map	H		Octave=1		1130
 
 
 Scope	Propellerheads	Redrum Drum Computer
@@ -130,11 +130,21 @@ Map	C		0
 Map	D		0
 Map	E		0
 // Map	F		0
-Map	Redrum: Edit Accent		Edit Accent		redrumEditAccent	Sequencer
-Map	G		0			Pattern
-Map	H		0			Pattern
+// Map	G		0
+// Map	H		0
 
-Map	Redrum: Step Playing		Step Playing		redrumStepPlaying
+Map	_RedrumStepPlaying		Step Playing
+Map	_RedrumEditSteps		Edit Steps
+Map	_RedrumEditAccent		Edit Accent
+
+Map	1		"bind:_RedrumStepPlaying:bar/0"
+Map	2		"bind:_RedrumStepPlaying:bar/1"
+Map	3		"bind:_RedrumStepPlaying:bar/2"
+Map	4		"bind:_RedrumStepPlaying:bar/3"
+Map	5		"bind:_RedrumStepPlaying:beat/0"
+Map	6		"bind:_RedrumStepPlaying:beat/1"
+Map	7		"bind:_RedrumStepPlaying:beat/2"
+Map	8		"bind:_RedrumStepPlaying:beat/3"
 
 Map	F		Run		1030
 
@@ -142,7 +152,10 @@ Map	F1		Var=Pattern		1121
 Map	F2		Var=Sequencer		1121
 
 Map	F4		Shuffle		1123	Sequencer
-Map	Redrum: Edit Steps		Edit Steps		0121	Sequencer
+Map	F5		"bind:_RedrumEditSteps:0"		0121	Sequencer
+Map	F6		"bind:_RedrumEditSteps:1"		0121	Sequencer
+Map	F7		"bind:_RedrumEditSteps:2"		0121	Sequencer
+Map	F8		"bind:_RedrumEditSteps:3"		0121	Sequencer
 
 Map	G1		Selected Drum Toggle Step 1			Sequencer
 Map	G2		Selected Drum Toggle Step 2			Sequencer
@@ -160,6 +173,10 @@ Map	H5		Selected Drum Toggle Step 13			Sequencer
 Map	H6		Selected Drum Toggle Step 14			Sequencer
 Map	H7		Selected Drum Toggle Step 15			Sequencer
 Map	H8		Selected Drum Toggle Step 16			Sequencer
+
+Map	G		"bind:_RedrumEditAccent:hard"			Sequencer
+Map	H		"bind:_RedrumEditAccent:soft"			Sequencer
+
 Map	G1 Led		Selected Drum Step Out 1		redrumStepOut	Sequencer
 Map	G2 Led		Selected Drum Step Out 2		redrumStepOut	Sequencer
 Map	G3 Led		Selected Drum Step Out 3		redrumStepOut	Sequencer
@@ -233,5 +250,3 @@ Map	B5		Select Drum 7		0021
 Map	C5		Select Drum 8		0021
 Map	D5		Select Drum 9		0021
 Map	E5		Select Drum 10		0021
-
-Map	B		"testestest"		3211
