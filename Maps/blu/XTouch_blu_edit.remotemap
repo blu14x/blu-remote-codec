@@ -27,3 +27,25 @@ Map Version	1.2.0
 // Map	Control Surface Item	Key	Remotable Item	Scale	Mode	Group_1	Group_2	…
 
 Scope	Propellerheads	Reason Master Section
+
+Map	Ch 1: E		Channel 1 Pan		panf
+Map	Ch 2: E		Channel 2 Pan		panf
+Map	Ch 3: E		Channel 3 Pan		panf
+Map	Ch 4: E		Channel 4 Pan		panf
+Map	Ch 5: E		Channel 5 Pan		panf
+Map	Ch 6: E		Channel 6 Pan		panf
+Map	Ch 7: E		Channel 7 Pan		panf
+Map	Ch 8: E		Channel 8 Pan		panf
+
+// Map	Ch 1: ELed		Channel 1 Width		spreadb
+Map	Ch 2: ELed		Channel 2 Width		spreadb
+Map	Ch 3: ELed		Channel 3 Width		spreadb
+Map	Ch 4: ELed		Channel 4 Width		spreadb
+Map	Ch 5: ELed		Channel 5 Width		spreadb
+Map	Ch 6: ELed		Channel 6 Width		spreadb
+Map	Ch 7: ELed		Channel 7 Width		spreadb
+Map	Ch 8: ELed		Channel 8 Width		spreadb
+
+Map	Ch 3: ELed L		Channel 3 FX1 Send Level		dotb
+Map	Ch 4: ELed L		Channel 4 FX1 Send Level		dotb
+Map	Ch 4: ELed R		Channel 4 FX2 Send Level		dotb

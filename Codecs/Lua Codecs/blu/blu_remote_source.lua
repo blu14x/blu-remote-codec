@@ -813,6 +813,9 @@ do
     function SurfaceItem:processMidi(midi)
       return {}, false
     end
+    function SurfaceItem:scaleRemoteValue(remoteValue, maxValue)
+      return math.floor(remoteValue * maxValue / self.max)
+    end
     function SurfaceItem:setState()
       return
     end
@@ -1045,13 +1048,10 @@ do
     self.button = button
     button.led  = self
   end
-  function LPLedItem:convertRemoteValue(remoteValue, maxValue)
-    return math.floor(remoteValue * maxValue / self.max)
-  end
   function LPLedItem:setState()
     if self:isEnabled() then
       local modeValues  = self:modeData().values
-      local remoteValue = self:convertRemoteValue(self:remotableValue(), arr.length(modeValues) - 1)
+      local remoteValue = self:scaleRemoteValue(self:remotableValue(), arr.length(modeValues) - 1)
       self.button:sendMidi({ x = modeValues[remoteValue + 1] })
     else
       self.button:setState()
@@ -1570,7 +1570,7 @@ do
         end
       end
 
-      -- Buttons
+      -- Encoders
       for encoderNr = 1, encodersMainSection do
         local encoderId = encoderNr - 1
         self:addItem(SurfaceItem, {
@@ -1578,6 +1578,16 @@ do
             type    = 'delta',
             pattern = midi.pattern('cc', 0, num.fromHex('60') + encoderId, '?<??x?>'),
             value   = '2*x-1'
+          } })
+      end
+
+      -- Encoder Clicks
+      for encoderNr = 1, encodersMainSection do
+        local encoderId = encoderNr - 1
+        self:addItem(SurfaceItem, {
+          name = itemNamePrefix .. 'EC' .. encoderNr, input = {
+            type    = 'button',
+            pattern = midi.pattern('n_on', 0, num.fromHex('19') + encoderId, '<?x??>?'),
           } })
       end
     end
@@ -1595,80 +1605,263 @@ end
 -- Behringer X-Touch
 do
   local encoderLedModeData     = {
-    { name      = "dot",
-      abstracts = { "x............", ".x...........", "..x..........", "...x.........", "....x........",
-                    ".....x.......", "......x......", ".......x.....", "........x....", ".........x...",
-                    "..........x..", "...........x.", "............x" } },
-    { name      = "dotb",
-      abstracts = { "x............", "xx...........", ".x...........", ".xx..........", "..x..........",
-                    "..xx.........", "...x.........", "...xx........", "....x........", "....xx.......",
-                    ".....x.......", ".....xx......", "......x......", "......xx.....", ".......x.....",
-                    ".......xx....", "........x....", "........xx...", ".........x...", ".........xx..",
-                    "..........x..", "..........xx.", "...........x.", "...........xx", "............x" } },
-    { name      = "fill",
-      abstracts = { "x............", "xx...........", "xxx..........", "xxxx.........", "xxxxx........",
-                    "xxxxxx.......", "xxxxxxx......", "xxxxxxxx.....", "xxxxxxxxx....", "xxxxxxxxxx...",
-                    "xxxxxxxxxxx..", "xxxxxxxxxxxx.", "xxxxxxxxxxxxx" } },
-    { name      = "bip",
-      abstracts = { "xxxxxxx......", ".xxxxxx......", "..xxxxx......", "...xxxx......", "....xxx......",
-                    ".....xx......", "......x......", "......xx.....", "......xxx....", "......xxxx...",
-                    "......xxxxx..", "......xxxxxx.", "......xxxxxxx" } },
-    { name      = "pan",
-      abstracts = { "xxxxxx.......", "xxxxxxx......", "xxxxxxxx.....", "xxxxxxxxx....", "xxxxxxxxxx...",
-                    "xxxxxxxxxxx..", ".xxxxxxxxxxx.", "..xxxxxxxxxxx", "...xxxxxxxxxx", "....xxxxxxxxx",
-                    ".....xxxxxxxx", "......xxxxxxx", ".......xxxxxx" } },
-    { name      = "pani",
-      abstracts = { "......xxxxxxx", ".......xxxxxx", "........xxxxx", ".........xxxx", "..........xxx",
-                    "...........xx", "x...........x", "xx...........", "xxx..........", "xxxx.........",
-                    "xxxxx........", "xxxxxx.......", "xxxxxxx......" } },
-    { name      = "panf",
-      abstracts = { "x............", "xx...........", "xxx..........", "xxxx.........", "xxxxx........",
-                    "xxxxxx.......", "xxxxxxx......", "xxxxxxxx.....", "xxxxxxxxx....", "xxxxxxxxxx...",
-                    "xxxxxxxxxxx..", "xxxxxxxxxxxx.", "xxxxxxxxxxxxx", ".xxxxxxxxxxxx", "..xxxxxxxxxxx",
-                    "...xxxxxxxxxx", "....xxxxxxxxx", ".....xxxxxxxx", "......xxxxxxx", ".......xxxxxx",
-                    "........xxxxx", ".........xxxx", "..........xxx", "...........xx", "............x" } },
-    { name      = "spread",
-      abstracts = { "......x......", ".....x.x.....", "....x...x....", "...x.....x...", "..x.......x..",
-                    ".x.........x.", "x...........x" } },
-    { name      = "spreadb",
-      abstracts = { "......x......", ".....xxx.....", ".....x.x.....", "....xx.xx....", "....x...x....",
-                    "...xx...xx...", "...x.....x...", "..xx.....xx..", "..x.......x..", ".xx.......xx.",
-                    ".x.........x.", "xx.........xx", "x...........x" } },
-    { name      = "spreadf",
-      abstracts = { "......x......", ".....xxx.....", "....xxxxx....", "...xxxxxxx...", "..xxxxxxxxx..",
-                    ".xxxxxxxxxxx.", "xxxxxxxxxxxxx" } },
-
+    -- normal dot moving around
+    { 'dot', { "x............", ".x...........", "..x..........", "...x.........", "....x........",
+               ".....x.......", "......x......", ".......x.....", "........x....", ".........x...",
+               "..........x..", "...........x.", "............x" } },
+    -- a dot but blurry
+    { 'dotb', { "x............", "xx...........", ".x...........", ".xx..........", "..x..........",
+                "..xx.........", "...x.........", "...xx........", "....x........", "....xx.......",
+                ".....x.......", ".....xx......", "......x......", "......xx.....", ".......x.....",
+                ".......xx....", "........x....", "........xx...", ".........x...", ".........xx..",
+                "..........x..", "..........xx.", "...........x.", "...........xx", "............x" } },
+    -- filling up
+    { 'fill', { "x............", "xx...........", "xxx..........", "xxxx.........", "xxxxx........",
+                "xxxxxx.......", "xxxxxxx......", "xxxxxxxx.....", "xxxxxxxxx....", "xxxxxxxxxx...",
+                "xxxxxxxxxxx..", "xxxxxxxxxxxx.", "xxxxxxxxxxxxx" } },
+    -- bipolar
+    { 'bip', { "xxxxxxx......", ".xxxxxx......", "..xxxxx......", "...xxxx......", "....xxx......",
+               ".....xx......", "......x......", "......xx.....", "......xxx....", "......xxxx...",
+               "......xxxxx..", "......xxxxxx.", "......xxxxxxx" } },
+    -- panorama
+    { 'pan', { "xxxxxx.......", "xxxxxxx......", "xxxxxxxx.....", "xxxxxxxxx....", "xxxxxxxxxx...",
+               "xxxxxxxxxxx..", ".xxxxxxxxxxx.", "..xxxxxxxxxxx", "...xxxxxxxxxx", "....xxxxxxxxx",
+               ".....xxxxxxxx", "......xxxxxxx", ".......xxxxxx" } },
+    -- panorama but inverted
+    { 'pani', { "......xxxxxxx", ".......xxxxxx", "........xxxxx", ".........xxxx", "..........xxx",
+                "...........xx", "x...........x", "xx...........", "xxx..........", "xxxx.........",
+                "xxxxx........", "xxxxxx.......", "xxxxxxx......" } },
+    -- panorama but going full outside
+    { 'panf', { "x............", "xx...........", "xxx..........", "xxxx.........", "xxxxx........",
+                "xxxxxx.......", "xxxxxxx......", "xxxxxxxx.....", "xxxxxxxxx....", "xxxxxxxxxx...",
+                "xxxxxxxxxxx..", "xxxxxxxxxxxx.", "xxxxxxxxxxxxx", ".xxxxxxxxxxxx", "..xxxxxxxxxxx",
+                "...xxxxxxxxxx", "....xxxxxxxxx", ".....xxxxxxxx", "......xxxxxxx", ".......xxxxxx",
+                "........xxxxx", ".........xxxx", "..........xxx", "...........xx", "............x" } },
+    -- like the dot but spreading
+    { 'spread', { "......x......", ".....x.x.....", "....x...x....", "...x.....x...", "..x.......x..",
+                  ".x.........x.", "x...........x" } },
+    -- like the spreading dot but blurry
+    { 'spreadb', { "......x......", ".....xxx.....", ".....x.x.....", "....xx.xx....", "....x...x....",
+                   "...xx...xx...", "...x.....x...", "..xx.....xx..", "..x.......x..", ".xx.......xx.",
+                   ".x.........x.", "xx.........xx", "x...........x" } },
+    -- filling up from the center
+    { 'spreadf', { "......x......", ".....xxx.....", "....xxxxx....", "...xxxxxxx...", "..xxxxxxxxx..",
+                   ".xxxxxxxxxxx.", "xxxxxxxxxxxxx" } },
   }
   local encoderLedSideModeData = {
-    { name      = "dot",
-      abstracts = { "x.....", ".x....", "..x...", "...x..", "....x.", ".....x" } },
-    { name      = "rms_gtcmp",
-      abstracts = { "......", "x.....", ".x....", "..x...", "...x..", "....x." } },
-    { name      = "dotb",
-      abstracts = { "x.....", "xx....", ".x....", ".xx...", "..x...", "..xx..",
-                    "...x..", "...xx.", "....x.", "....xx", ".....x" } },
-    { name      = "fill",
-      abstracts = { "x.....", "xx....", "xxx...", "xxxx..", "xxxxx.", "xxxxxx" } },
+    { 'dot', { "x.....", ".x....", "..x...", "...x..", "....x.", ".....x" } },
+    -- for led feedback of gate and comp of the main mixer
+    { 'rms_gtcmp', { "......", "x.....", ".x....", "..x...", "...x..", "....x." } },
+    { 'dotb', { "x.....", "xx....", ".x....", ".xx...", "..x...", "..xx..",
+                "...x..", "...xx.", "....x.", "....xx", ".....x" } },
+    { 'fill', { "x.....", "xx....", "xxx...", "xxxx..", "xxxxx.", "xxxxxx" } },
   }
 
   local function valueFromAbstract(abstract)
     return tonumber(abstract:gsub('x', '1'):gsub('%.', '0'):reverse(), 2)
   end
 
-  local encoderModes = {}
-  for _, data in pairs(encoderLedModeData) do
-    local values = {}
-    for i, abstract in pairs(data.abstracts) do
+  local encoderLedModes = {}
+  for _, data in ipairs(encoderLedModeData) do
+    local name, abstracts = unpack(data)
+    local values          = {}
+    for _, abstract in pairs(abstracts) do
       local valueLeft  = valueFromAbstract(abstract:sub(1, 7))
       local valueRight = valueFromAbstract(abstract:sub(8, 13))
       table.insert(values, { valueLeft, valueRight })
     end
-    table.insert(encoderModes, { name = data.name, values = values })
+    table.insert(encoderLedModes, { name = name, values = values })
   end
-  --debugger(encoderModes)
+  local encoderLeftSideModes  = {}
+  local encoderRightSideModes = {}
+  for _, data in ipairs(encoderLedSideModeData) do
+    local name, abstracts = unpack(data)
+    local leftValues      = {}
+    local rightValues     = {}
+    for _, abstract in pairs(abstracts) do
+      table.insert(leftValues, valueFromAbstract(abstract))
+      table.insert(rightValues, valueFromAbstract(abstract:reverse()))
+    end
+    table.insert(encoderLeftSideModes, { name = name, values = leftValues })
+    table.insert(encoderRightSideModes, { name = name, values = rightValues })
+  end
+
+  XTEncoder = Class(SurfaceItem)
+  function XTEncoder:__classname() return 'XTEncoder' end
+  function XTEncoder:construct(surface, kwargs)
+    local name      = obj.get(kwargs, 'name', true)
+    local channelId = obj.get(kwargs, 'channelId', true)
+    local groups    = obj.get(kwargs, 'groups', false, {})
+
+    XTEncoder.super.construct(self, surface, {
+      name   = name,
+      min    = 0,
+      max    = math.pow(2, 13),
+      modes  = encoderLedModes,
+      input  = {
+        type    = 'delta',
+        pattern = midi.pattern('cc', 0, 16 + channelId, '<?y??>x'),
+        value   = 'x*(1-2*y)'
+      },
+      output = {
+        auto_handle = false,
+        type        = 'value',
+      },
+      groups = groups
+    })
+    self.leftOutputPattern  = midi.pattern('cc', 0, 48 + channelId, 'xx')
+    self.rightOutputPattern = midi.pattern('cc', 0, 56 + channelId, 'xx')
+  end
+  function XTEncoder:setState()
+    if not self.ledSides[1]:isEnabled() and not self.ledSides[2]:isEnabled() and not self.led:isEnabled() then
+      local retValues = { 0, 0 }
+      if self:isEnabled() then
+        local modeValues  = self:modeData().values
+        local remoteValue = self:scaleRemoteValue(self:remotableValue(), arr.length(modeValues) - 1)
+        retValues         = modeValues[remoteValue + 1]
+      end
+      self:sendMidi({ { x = retValues[1] }, { x = retValues[2] } })
+    end
+  end
+  function XTEncoder:sendMidi(midiGroup, kwargs)
+    self.surface:addToMidiQueue(remote.make_midi(self.leftOutputPattern, midiGroup[1]), kwargs)
+    self.surface:addToMidiQueue(remote.make_midi(self.rightOutputPattern, midiGroup[2]), kwargs)
+  end
+
+  XTEncoderLed = Class(SurfaceItem)
+  function XTEncoderLed:__classname() return 'XTEncoderLed' end
+  function XTEncoderLed:construct(surface, kwargs)
+    local name    = obj.get(kwargs, 'name', true)
+    local encoder = obj.get(kwargs, 'encoder', true)
+    local groups  = obj.get(kwargs, 'groups', false, {})
+
+    XTEncoderLed.super.construct(self, surface, {
+      name   = name,
+      min    = 0,
+      max    = math.pow(2, 13),
+      modes  = encoderLedModes,
+      output = {
+        auto_handle = false,
+        type        = 'value',
+      },
+      groups = groups,
+    })
+    self.encoder     = encoder
+    self.encoder.led = self
+  end
+  function XTEncoderLed:setState()
+    if not self.ledSides[1]:isEnabled() and not self.ledSides[2]:isEnabled() then
+      if self:isEnabled() then
+        local retValues   = { 0, 0 }
+        local modeValues  = self:modeData().values
+        local remoteValue = self:scaleRemoteValue(self:remotableValue(), arr.length(modeValues) - 1)
+        retValues         = modeValues[remoteValue + 1]
+        self.encoder:sendMidi({ { x = retValues[1] }, { x = retValues[2] } })
+      else
+        self.encoder:setState()
+      end
+    end
+  end
+
+  XTEncoderLedSide = Class(SurfaceItem)
+  function XTEncoderLedSide:__classname() return 'XTEncoderLedSide' end
+  function XTEncoderLedSide:construct(surface, kwargs)
+    local name        = obj.get(kwargs, 'name', true)
+    local encoder     = obj.get(kwargs, 'encoder', true)
+    local encoderLed  = obj.get(kwargs, 'encoderLed', true)
+    local isRightSide = obj.get(kwargs, 'isRightSide', true)
+    local sibling     = obj.get(kwargs, 'sibling', false)
+    local groups      = obj.get(kwargs, 'groups', false, {})
+
+    XTEncoderLedSide.super.construct(self, surface, {
+      name   = name,
+      min    = 0,
+      max    = math.pow(2, 13),
+      modes  = isRightSide and encoderRightSideModes or encoderLeftSideModes,
+      output = {
+        auto_handle = false,
+        type        = 'value',
+      },
+      groups = groups,
+    })
+    self.isRightSide = isRightSide
+
+    self.encoder     = encoder
+    self.led         = encoderLed
+
+    if not self.encoder.ledSides then
+      self.encoder.ledSides = {}
+    end
+    if not self.led.ledSides then
+      self.led.ledSides = {}
+    end
+
+    table.insert(self.encoder.ledSides, self)
+    table.insert(self.led.ledSides, self)
+
+    if sibling then
+      self.sibling         = sibling
+      self.sibling.sibling = self
+    end
+
+    self.outputPattern = self.isRightSide and self.encoder.rightOutputPattern or self.encoder.leftOutputPattern
+  end
+  function XTEncoderLedSide:setState()
+    if self:isEnabled() or self.sibling:isEnabled() then
+      local retValue = 0
+      if self:isEnabled() then
+        local modeValues  = self:modeData().values
+        local remoteValue = self:scaleRemoteValue(self:remotableValue(), arr.length(modeValues) - 1)
+        retValue          = modeValues[remoteValue + 1]
+      end
+      self.surface:addToMidiQueue(remote.make_midi(self.outputPattern, { x = retValue }))
+
+    else
+      if self.led:isEnabled() then
+        self.led:setState()
+      else
+        self.encoder:setState()
+      end
+    end
+  end
 
   XTouch = Class(ControlSurface)
   function XTouch:repr() return 'XTouch' end
+  function XTouch:construct(manufacturer, model)
+    XTouch.super.construct(self)
+
+    -- Channels 1 - 8
+    local channelCount = 8
+    for channelNr = 1, channelCount do
+      local itemNamePrefix  = str.f('Ch %s: ', channelNr)
+      local channelId       = channelNr - 1
+
+      local encoder         = self:addItem(XTEncoder, {
+        name      = itemNamePrefix .. 'E',
+        channelId = channelId
+      })
+      local encoderLed      = self:addItem(XTEncoderLed, {
+        name    = itemNamePrefix .. 'ELed',
+        encoder = encoder,
+      })
+      local leftEncoderLed  = self:addItem(XTEncoderLedSide, {
+        name        = itemNamePrefix .. 'ELed L',
+        encoder     = encoder,
+        encoderLed  = encoderLed,
+        isRightSide = false
+      })
+      local rightEncoderLed = self:addItem(XTEncoderLedSide, {
+        name        = itemNamePrefix .. 'ELed R',
+        encoder     = encoder,
+        encoderLed  = encoderLed,
+        isRightSide = true,
+        sibling     = leftEncoderLed
+      })
+
+    end
+
+  end
+
   function XTouch:processSysexEvent(event)
     -- XCTL Handshake
     local eventValues = {}
