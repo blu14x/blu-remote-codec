@@ -436,6 +436,23 @@ do
         for _ = 1, count do table.insert(initArray, type(value) == 'table' and tbl.deepCopy(value) or value) end
         return initArray
       end,
+      flat             = function(a, yield)
+        -- returns a flattened Array from the nested Array (a)
+        if type(a) ~= "table" then
+          return a
+        end
+        local _yield = yield or {}
+        for _, v in ipairs(a) do
+          if type(v) == "table" then
+            for _, dv in ipairs(arr.flat(v)) do
+              table.insert(_yield, dv)
+            end
+          else
+            table.insert(_yield, v)
+          end
+        end
+        return _yield
+      end
     }
 
     debugger     = function(data)
@@ -597,7 +614,7 @@ do
       self.midiQueue   = {}
       self.scriptState = {}
     end
-    function ControlSurface:addItem(itemClass, itemKwargs)
+    function ControlSurface:registerItem(itemClass, itemKwargs)
       return itemClass(self, itemKwargs)
     end
     function ControlSurface:getItemByName(itemName)
@@ -1353,12 +1370,12 @@ do
 
     -- Script Items
     do
-      self:addItem(ScriptItem, { name = 'Scope' })
-      self:addItem(ScriptItem, { name = 'Var' })
-      self:addItem(ScriptItem, { name = 'KB_Layout' })
-      self:addItem(ScriptItem, { name = 'KB_Scale' })
-      self:addItem(ScriptItem, { name = 'KB_Root' })
-      self:addItem(ScriptItem, { name = 'KB_Octave' })
+      self:registerItem(ScriptItem, { name = 'Scope' })
+      self:registerItem(ScriptItem, { name = 'Var' })
+      self:registerItem(ScriptItem, { name = 'KB_Layout' })
+      self:registerItem(ScriptItem, { name = 'KB_Scale' })
+      self:registerItem(ScriptItem, { name = 'KB_Root' })
+      self:registerItem(ScriptItem, { name = 'KB_Octave' })
     end
 
     local function rowChar(row)
@@ -1383,7 +1400,7 @@ do
             local addressByte   = zone == 'Top' and 104 + midiCol or 16 * (midiRow - 1) + midiCol
             local kbCoordinates = zone == 'Grid' and { maxRows - 1 - midiRow, midiCol } or nil
 
-            local buttonItem    = self:addItem(LPButtonItem, {
+            local buttonItem    = self:registerItem(LPButtonItem, {
               name        = name,
               midiAction  = midiAction,
               addressByte = addressByte,
@@ -1394,7 +1411,7 @@ do
               groups      = { zone .. 'Buttons' }
             })
 
-            self:addItem(LPLedItem, { button = buttonItem, groups = { zone .. 'Leds' } })
+            self:registerItem(LPLedItem, { button = buttonItem, groups = { zone .. 'Leds' } })
 
             if zone == 'Top' then
               table.insert(topButtons, buttonItem)
@@ -1406,10 +1423,10 @@ do
       end
     end
 
-    self.keyboard = self:addItem(LPKeyboardOverrideItem, { name = 'Keyboard', slaveItems = gridButtons })
-    self:addItem(LPRedrumEditAccentVirtualItem, { name = 'RedrumEditAccent' })
-    self:addItem(LPRedrumEditStepsVirtualItem, { name = 'RedrumEditSteps' })
-    self:addItem(LPRedrumStepPlayingVirtualItem, { name = 'RedrumStepPlaying' })
+    self.keyboard = self:registerItem(LPKeyboardOverrideItem, { name = 'Keyboard', slaveItems = gridButtons })
+    self:registerItem(LPRedrumEditAccentVirtualItem, { name = 'RedrumEditAccent' })
+    self:registerItem(LPRedrumEditStepsVirtualItem, { name = 'RedrumEditSteps' })
+    self:registerItem(LPRedrumStepPlayingVirtualItem, { name = 'RedrumStepPlaying' })
 
   end
   function Launchpad:setState(changedItems, changedItemsPerGroup, newScriptStates)
@@ -1505,7 +1522,7 @@ do
       local channelId      = channelNr - 1
 
       -- Fader
-      self:addItem(SurfaceItem, {
+      self:registerItem(SurfaceItem, {
         name = itemNamePrefix .. 'Fader', min = 0, max = 127, input = {
           type    = 'value',
           pattern = midi.pattern('cc', 0, num.fromHex('29') + channelId, 'xx')
@@ -1513,7 +1530,7 @@ do
 
       -- Rotaries
       for rotaryNr = 1, rotariesPerChannel do
-        self:addItem(SurfaceItem, {
+        self:registerItem(SurfaceItem, {
           name = itemNamePrefix .. 'R' .. rotaryNr, min = 0, max = 127, input = {
             type    = 'value',
             pattern = midi.pattern('cc', 0, channelId * rotariesPerChannel + rotaryNr, 'xx')
@@ -1523,7 +1540,7 @@ do
       -- Buttons
       for buttonNr = 1, buttonsPerChannel do
         local buttonId = buttonNr - 1
-        self:addItem(DS1ButtonItem, {
+        self:registerItem(DS1ButtonItem, {
           name        = itemNamePrefix .. 'B' .. buttonNr,
           addressByte = channelId * buttonsPerChannel + buttonId,
           groups      = { 'Buttons' }
@@ -1542,7 +1559,7 @@ do
       local channelId      = mainChannelNr - 1
 
       -- Fader
-      self:addItem(SurfaceItem, {
+      self:registerItem(SurfaceItem, {
         name = itemNamePrefix .. 'Fader', min = 0, max = 127, input = {
           type    = 'value',
           pattern = midi.pattern('cc', 0, num.fromHex('29') + channelId, 'xx')
@@ -1550,7 +1567,7 @@ do
 
       -- Rotaries
       for rotaryNr = 1, rotariesMainSection do
-        self:addItem(SurfaceItem, {
+        self:registerItem(SurfaceItem, {
           name = itemNamePrefix .. 'R' .. rotaryNr, min = 0, max = 127, input = {
             type    = 'value',
             pattern = midi.pattern('cc', 0, num.fromHex('31') + rotaryNr, 'xx')
@@ -1562,7 +1579,7 @@ do
         local rowId = rowNr - 1
         for colNr = 1, buttonColsMainSection do
           local colId = colNr - 1
-          self:addItem(DS1ButtonItem, {
+          self:registerItem(DS1ButtonItem, {
             name        = itemNamePrefix .. 'B' .. rowId * buttonColsMainSection + colNr,
             addressByte = num.fromHex('10') + rowId + buttonColsMainSection * colId,
             groups      = { 'Buttons' }
@@ -1573,7 +1590,7 @@ do
       -- Encoders
       for encoderNr = 1, encodersMainSection do
         local encoderId = encoderNr - 1
-        self:addItem(SurfaceItem, {
+        self:registerItem(SurfaceItem, {
           name = itemNamePrefix .. 'E' .. encoderNr, input = {
             type    = 'delta',
             pattern = midi.pattern('cc', 0, num.fromHex('60') + encoderId, '?<??x?>'),
@@ -1584,7 +1601,7 @@ do
       -- Encoder Clicks
       for encoderNr = 1, encodersMainSection do
         local encoderId = encoderNr - 1
-        self:addItem(SurfaceItem, {
+        self:registerItem(SurfaceItem, {
           name = itemNamePrefix .. 'EC' .. encoderNr, input = {
             type    = 'button',
             pattern = midi.pattern('n_on', 0, num.fromHex('19') + encoderId, '<?x??>?'),
@@ -1604,224 +1621,485 @@ end
 
 -- Behringer X-Touch
 do
-  local encoderLedModeData     = {
-    -- normal dot moving around
-    { 'dot', { "x............", ".x...........", "..x..........", "...x.........", "....x........",
-               ".....x.......", "......x......", ".......x.....", "........x....", ".........x...",
-               "..........x..", "...........x.", "............x" } },
-    -- a dot but blurry
-    { 'dotb', { "x............", "xx...........", ".x...........", ".xx..........", "..x..........",
-                "..xx.........", "...x.........", "...xx........", "....x........", "....xx.......",
-                ".....x.......", ".....xx......", "......x......", "......xx.....", ".......x.....",
-                ".......xx....", "........x....", "........xx...", ".........x...", ".........xx..",
-                "..........x..", "..........xx.", "...........x.", "...........xx", "............x" } },
-    -- filling up
-    { 'fill', { "x............", "xx...........", "xxx..........", "xxxx.........", "xxxxx........",
-                "xxxxxx.......", "xxxxxxx......", "xxxxxxxx.....", "xxxxxxxxx....", "xxxxxxxxxx...",
-                "xxxxxxxxxxx..", "xxxxxxxxxxxx.", "xxxxxxxxxxxxx" } },
-    -- bipolar
-    { 'bip', { "xxxxxxx......", ".xxxxxx......", "..xxxxx......", "...xxxx......", "....xxx......",
-               ".....xx......", "......x......", "......xx.....", "......xxx....", "......xxxx...",
-               "......xxxxx..", "......xxxxxx.", "......xxxxxxx" } },
-    -- panorama
-    { 'pan', { "xxxxxx.......", "xxxxxxx......", "xxxxxxxx.....", "xxxxxxxxx....", "xxxxxxxxxx...",
-               "xxxxxxxxxxx..", ".xxxxxxxxxxx.", "..xxxxxxxxxxx", "...xxxxxxxxxx", "....xxxxxxxxx",
-               ".....xxxxxxxx", "......xxxxxxx", ".......xxxxxx" } },
-    -- panorama but inverted
-    { 'pani', { "......xxxxxxx", ".......xxxxxx", "........xxxxx", ".........xxxx", "..........xxx",
-                "...........xx", "x...........x", "xx...........", "xxx..........", "xxxx.........",
-                "xxxxx........", "xxxxxx.......", "xxxxxxx......" } },
-    -- panorama but going full outside
-    { 'panf', { "x............", "xx...........", "xxx..........", "xxxx.........", "xxxxx........",
-                "xxxxxx.......", "xxxxxxx......", "xxxxxxxx.....", "xxxxxxxxx....", "xxxxxxxxxx...",
-                "xxxxxxxxxxx..", "xxxxxxxxxxxx.", "xxxxxxxxxxxxx", ".xxxxxxxxxxxx", "..xxxxxxxxxxx",
-                "...xxxxxxxxxx", "....xxxxxxxxx", ".....xxxxxxxx", "......xxxxxxx", ".......xxxxxx",
-                "........xxxxx", ".........xxxx", "..........xxx", "...........xx", "............x" } },
-    -- like the dot but spreading
-    { 'spread', { "......x......", ".....x.x.....", "....x...x....", "...x.....x...", "..x.......x..",
-                  ".x.........x.", "x...........x" } },
-    -- like the spreading dot but blurry
-    { 'spreadb', { "......x......", ".....xxx.....", ".....x.x.....", "....xx.xx....", "....x...x....",
-                   "...xx...xx...", "...x.....x...", "..xx.....xx..", "..x.......x..", ".xx.......xx.",
-                   ".x.........x.", "xx.........xx", "x...........x" } },
-    -- filling up from the center
-    { 'spreadf', { "......x......", ".....xxx.....", "....xxxxx....", "...xxxxxxx...", "..xxxxxxxxx..",
-                   ".xxxxxxxxxxx.", "xxxxxxxxxxxxx" } },
-  }
-  local encoderLedSideModeData = {
-    { 'dot', { "x.....", ".x....", "..x...", "...x..", "....x.", ".....x" } },
-    -- for led feedback of gate and comp of the main mixer
-    { 'rms_gtcmp', { "......", "x.....", ".x....", "..x...", "...x..", "....x." } },
-    { 'dotb', { "x.....", "xx....", ".x....", ".xx...", "..x...", "..xx..",
-                "...x..", "...xx.", "....x.", "....xx", ".....x" } },
-    { 'fill', { "x.....", "xx....", "xxx...", "xxxx..", "xxxxx.", "xxxxxx" } },
-  }
-
-  local function valueFromAbstract(abstract)
-    return tonumber(abstract:gsub('x', '1'):gsub('%.', '0'):reverse(), 2)
-  end
-
-  local encoderLedModes = {}
-  for _, data in ipairs(encoderLedModeData) do
-    local name, abstracts = unpack(data)
-    local values          = {}
-    for _, abstract in pairs(abstracts) do
-      local valueLeft  = valueFromAbstract(abstract:sub(1, 7))
-      local valueRight = valueFromAbstract(abstract:sub(8, 13))
-      table.insert(values, { valueLeft, valueRight })
-    end
-    table.insert(encoderLedModes, { name = name, values = values })
-  end
-  local encoderLeftSideModes  = {}
-  local encoderRightSideModes = {}
-  for _, data in ipairs(encoderLedSideModeData) do
-    local name, abstracts = unpack(data)
-    local leftValues      = {}
-    local rightValues     = {}
-    for _, abstract in pairs(abstracts) do
-      table.insert(leftValues, valueFromAbstract(abstract))
-      table.insert(rightValues, valueFromAbstract(abstract:reverse()))
-    end
-    table.insert(encoderLeftSideModes, { name = name, values = leftValues })
-    table.insert(encoderRightSideModes, { name = name, values = rightValues })
-  end
-
-  XTEncoder = Class(SurfaceItem)
-  function XTEncoder:__classname() return 'XTEncoder' end
-  function XTEncoder:construct(surface, kwargs)
-    local name      = obj.get(kwargs, 'name', true)
-    local channelId = obj.get(kwargs, 'channelId', true)
-    local groups    = obj.get(kwargs, 'groups', false, {})
-
-    XTEncoder.super.construct(self, surface, {
-      name   = name,
-      min    = 0,
-      max    = math.pow(2, 13),
-      modes  = encoderLedModes,
-      input  = {
-        type    = 'delta',
-        pattern = midi.pattern('cc', 0, 16 + channelId, '<?y??>x'),
-        value   = 'x*(1-2*y)'
-      },
-      output = {
-        auto_handle = false,
-        type        = 'value',
-      },
-      groups = groups
-    })
-    self.leftOutputPattern  = midi.pattern('cc', 0, 48 + channelId, 'xx')
-    self.rightOutputPattern = midi.pattern('cc', 0, 56 + channelId, 'xx')
-  end
-  function XTEncoder:setState()
-    if not self.ledSides[1]:isEnabled() and not self.ledSides[2]:isEnabled() and not self.led:isEnabled() then
-      local retValues = { 0, 0 }
-      if self:isEnabled() then
-        local modeValues  = self:modeData().values
-        local remoteValue = self:scaleRemoteValue(self:remotableValue(), arr.length(modeValues) - 1)
-        retValues         = modeValues[remoteValue + 1]
+  -- Buttons
+  do
+    local buttonModes    = {
+      { name = 't', hold = false, holdGrouped = false }, -- (default)
+      { name = 'h', hold = true, holdGrouped = false },
+      { name = 'hg', hold = true, holdGrouped = true }
+    }
+    local ledModes       = {
+      { name = 'os', values = { 0, 2 } }, -- off / solid (default)
+      { name = 'o', values = { 0, 0 } }, -- always off
+      { name = 'of', values = { 0, 1 } }, -- off / flashing
+      { name = 'fo', values = { 1, 0 } }, -- flashing / off
+      { name = 'f', values = { 1, 1 } }, -- always flashing
+      { name = 'fs', values = { 1, 2 } }, -- flashing / solid
+      { name = 'so', values = { 2, 0 } }, -- solid / off
+      { name = 'sf', values = { 2, 1 } }, -- solid / flashing
+      { name = 's', values = { 2, 2 } }, -- always solid
+    }
+    local ledButtonModes = {}
+    for _, buttonMode in ipairs(buttonModes) do
+      for _, ledMode in ipairs(ledModes) do
+        table.insert(ledButtonModes, {
+          name        = buttonMode.hold and ledMode.name .. buttonMode.name or ledMode.name,
+          values      = ledMode.values,
+          hold        = buttonMode.hold,
+          holdGrouped = buttonMode.holdGrouped
+        })
       end
-      self:sendMidi({ { x = retValues[1] }, { x = retValues[2] } })
     end
-  end
-  function XTEncoder:sendMidi(midiGroup, kwargs)
-    self.surface:addToMidiQueue(remote.make_midi(self.leftOutputPattern, midiGroup[1]), kwargs)
-    self.surface:addToMidiQueue(remote.make_midi(self.rightOutputPattern, midiGroup[2]), kwargs)
+
+    XTButtonItem = Class(SurfaceItem)
+    function XTButtonItem:__classname() return 'XTButtonItem' end
+    function XTButtonItem:construct(surface, kwargs)
+      local name    = obj.get(kwargs, 'name', true)
+      local address = obj.get(kwargs, 'address', true)
+
+      XTButtonItem.super.construct(self, surface, {
+        name  = name,
+        min   = 0,
+        max   = 1,
+        modes = buttonModes,
+        input = {
+          type    = 'button',
+          pattern = midi.pattern('n_on', 0, address, '?<???x>')
+        }
+      })
+    end
+
+    XTLedItem = Class(SurfaceItem)
+    function XTLedItem:__classname() return 'XTLedItem' end
+    function XTLedItem:construct(surface, kwargs)
+      local name    = obj.get(kwargs, 'name', true)
+      local address = obj.get(kwargs, 'address', true)
+
+      XTLedItem.super.construct(self, surface, {
+        name   = name,
+        min    = 0,
+        max    = 1,
+        modes  = ledModes,
+        output = {
+          type    = 'value',
+          pattern = midi.pattern('n_on', 0, address, 'xx'),
+          x       = "XTLedItem.evalOutputValue(enabled, mode, value)"
+        }
+      })
+    end
+    function XTLedItem.evalOutputValue(enabled, mode, value)
+      if not enabled then return 0 end
+      local _value = value >= 1 and 1 or 0
+      return ledModes[mode].values[_value + 1]
+    end
+
+    XTLedButtonItem = Class(SurfaceItem)
+    function XTLedButtonItem:__classname() return 'XTLedButtonItem' end
+    function XTLedButtonItem:construct(surface, kwargs)
+      local name    = obj.get(kwargs, 'name', true)
+      local address = obj.get(kwargs, 'address', true)
+
+      XTLedButtonItem.super.construct(self, surface, {
+        name   = name,
+        min    = 0,
+        max    = 1,
+        modes  = ledButtonModes,
+        input  = {
+          type    = 'button',
+          pattern = midi.pattern('n_on', 0, address, '?<???x>')
+        },
+        output = {
+          type    = 'value',
+          pattern = midi.pattern('n_on', 0, address, 'xx'),
+          x       = "XTLedButtonItem.evalOutputValue(enabled, mode, value)"
+        }
+      })
+    end
+    function XTLedButtonItem.evalOutputValue(enabled, mode, value)
+      if not enabled then return 0 end
+      local _value = value >= 1 and 1 or 0
+      return ledButtonModes[mode].values[_value + 1]
+    end
+
   end
 
-  XTEncoderLed = Class(SurfaceItem)
-  function XTEncoderLed:__classname() return 'XTEncoderLed' end
-  function XTEncoderLed:construct(surface, kwargs)
-    local name    = obj.get(kwargs, 'name', true)
-    local encoder = obj.get(kwargs, 'encoder', true)
-    local groups  = obj.get(kwargs, 'groups', false, {})
+  -- Encoder
+  do
+    local encoderLedModes        = {}
+    local encoderLeftSideModes   = {}
+    local encoderRightSideModes  = {}
+    local encoderLedModeData     = {
+      -- normal dot moving around
+      { 'dot', { 'x............', '.x...........', '..x..........', '...x.........', '....x........',
+                 '.....x.......', '......x......', '.......x.....', '........x....', '.........x...',
+                 '..........x..', '...........x.', '............x' } },
+      -- a dot but blurry
+      { 'dotb', { 'x............', 'xx...........', '.x...........', '.xx..........', '..x..........',
+                  '..xx.........', '...x.........', '...xx........', '....x........', '....xx.......',
+                  '.....x.......', '.....xx......', '......x......', '......xx.....', '.......x.....',
+                  '.......xx....', '........x....', '........xx...', '.........x...', '.........xx..',
+                  '..........x..', '..........xx.', '...........x.', '...........xx', '............x' } },
+      -- filling up
+      { 'fill', { 'x............', 'xx...........', 'xxx..........', 'xxxx.........', 'xxxxx........',
+                  'xxxxxx.......', 'xxxxxxx......', 'xxxxxxxx.....', 'xxxxxxxxx....', 'xxxxxxxxxx...',
+                  'xxxxxxxxxxx..', 'xxxxxxxxxxxx.', 'xxxxxxxxxxxxx' } },
+      -- bipolar
+      { 'bip', { 'xxxxxxx......', '.xxxxxx......', '..xxxxx......', '...xxxx......', '....xxx......',
+                 '.....xx......', '......x......', '......xx.....', '......xxx....', '......xxxx...',
+                 '......xxxxx..', '......xxxxxx.', '......xxxxxxx' } },
+      -- panorama
+      { 'pan', { 'xxxxxx.......', 'xxxxxxx......', 'xxxxxxxx.....', 'xxxxxxxxx....', 'xxxxxxxxxx...',
+                 'xxxxxxxxxxx..', '.xxxxxxxxxxx.', '..xxxxxxxxxxx', '...xxxxxxxxxx', '....xxxxxxxxx',
+                 '.....xxxxxxxx', '......xxxxxxx', '.......xxxxxx' } },
+      -- panorama but inverted
+      { 'pani', { '......xxxxxxx', '.......xxxxxx', '........xxxxx', '.........xxxx', '..........xxx',
+                  '...........xx', 'x...........x', 'xx...........', 'xxx..........', 'xxxx.........',
+                  'xxxxx........', 'xxxxxx.......', 'xxxxxxx......' } },
+      -- panorama but going full outside
+      { 'panf', { 'x............', 'xx...........', 'xxx..........', 'xxxx.........', 'xxxxx........',
+                  'xxxxxx.......', 'xxxxxxx......', 'xxxxxxxx.....', 'xxxxxxxxx....', 'xxxxxxxxxx...',
+                  'xxxxxxxxxxx..', 'xxxxxxxxxxxx.', 'xxxxxxxxxxxxx', '.xxxxxxxxxxxx', '..xxxxxxxxxxx',
+                  '...xxxxxxxxxx', '....xxxxxxxxx', '.....xxxxxxxx', '......xxxxxxx', '.......xxxxxx',
+                  '........xxxxx', '.........xxxx', '..........xxx', '...........xx', '............x' } },
+      -- like the dot but spreading
+      { 'spread', { '......x......', '.....x.x.....', '....x...x....', '...x.....x...', '..x.......x..',
+                    '.x.........x.', 'x...........x' } },
+      -- like the spreading dot but blurry
+      { 'spreadb', { '......x......', '.....xxx.....', '.....x.x.....', '....xx.xx....', '....x...x....',
+                     '...xx...xx...', '...x.....x...', '..xx.....xx..', '..x.......x..', '.xx.......xx.',
+                     '.x.........x.', 'xx.........xx', 'x...........x' } },
+      -- filling up from the center
+      { 'spreadf', { '......x......', '.....xxx.....', '....xxxxx....', '...xxxxxxx...', '..xxxxxxxxx..',
+                     '.xxxxxxxxxxx.', 'xxxxxxxxxxxxx' } },
+    }
+    local encoderLedSideModeData = {
+      { 'dot', { 'x.....', '.x....', '..x...', '...x..', '....x.', '.....x' } },
+      -- for led feedback of gate and comp of the main mixer
+      { 'rms_gtcmp', { '......', 'x.....', '.x....', '..x...', '...x..', '....x.' } },
+      { 'dotb', { 'x.....', 'xx....', '.x....', '.xx...', '..x...', '..xx..',
+                  '...x..', '...xx.', '....x.', '....xx', '.....x' } },
+      { 'fill', { 'x.....', 'xx....', 'xxx...', 'xxxx..', 'xxxxx.', 'xxxxxx' } },
+    }
 
-    XTEncoderLed.super.construct(self, surface, {
-      name   = name,
-      min    = 0,
-      max    = math.pow(2, 13),
-      modes  = encoderLedModes,
-      output = {
-        auto_handle = false,
-        type        = 'value',
-      },
-      groups = groups,
-    })
-    self.encoder     = encoder
-    self.encoder.led = self
-  end
-  function XTEncoderLed:setState()
-    if not self.ledSides[1]:isEnabled() and not self.ledSides[2]:isEnabled() then
-      if self:isEnabled() then
-        local retValues   = { 0, 0 }
-        local modeValues  = self:modeData().values
-        local remoteValue = self:scaleRemoteValue(self:remotableValue(), arr.length(modeValues) - 1)
-        retValues         = modeValues[remoteValue + 1]
-        self.encoder:sendMidi({ { x = retValues[1] }, { x = retValues[2] } })
+    local function valueFromAbstract(abstract)
+      return tonumber(abstract:gsub('x', '1'):gsub('%.', '0'):reverse(), 2)
+    end
+
+    for _, data in ipairs(encoderLedModeData) do
+      local name, abstracts = unpack(data)
+      local values          = {}
+      for _, abstract in pairs(abstracts) do
+        local valueLeft  = valueFromAbstract(abstract:sub(1, 7))
+        local valueRight = valueFromAbstract(abstract:sub(8, 13))
+        table.insert(values, { valueLeft, valueRight })
+      end
+      table.insert(encoderLedModes, { name = name, values = values })
+    end
+    for _, data in ipairs(encoderLedSideModeData) do
+      local name, abstracts = unpack(data)
+      local leftValues      = {}
+      local rightValues     = {}
+      for _, abstract in pairs(abstracts) do
+        table.insert(leftValues, valueFromAbstract(abstract))
+        table.insert(rightValues, valueFromAbstract(abstract:reverse()))
+      end
+      table.insert(encoderLeftSideModes, { name = name, values = leftValues })
+      table.insert(encoderRightSideModes, { name = name, values = rightValues })
+    end
+
+    XTEncoder = Class(SurfaceItem)
+    function XTEncoder:__classname() return 'XTEncoder' end
+    function XTEncoder:construct(surface, kwargs)
+      local name      = obj.get(kwargs, 'name', true)
+      local channelId = obj.get(kwargs, 'channelId', true)
+      local groups    = obj.get(kwargs, 'groups', false, {})
+
+      XTEncoder.super.construct(self, surface, {
+        name   = name,
+        min    = 0,
+        max    = math.pow(2, 13),
+        modes  = encoderLedModes,
+        input  = {
+          type    = 'delta',
+          pattern = midi.pattern('cc', 0, 16 + channelId, '<?y??>x'),
+          value   = 'x*(1-2*y)'
+        },
+        output = {
+          auto_handle = false,
+          type        = 'value',
+        },
+        groups = groups
+      })
+      self.leftOutputPattern  = midi.pattern('cc', 0, 48 + channelId, 'xx')
+      self.rightOutputPattern = midi.pattern('cc', 0, 56 + channelId, 'xx')
+    end
+    function XTEncoder:setState()
+      if not self.ledSides[1]:isEnabled() and not self.ledSides[2]:isEnabled() and not self.led:isEnabled() then
+        local retValues = { 0, 0 }
+        if self:isEnabled() then
+          local modeValues  = self:modeData().values
+          local remoteValue = self:scaleRemoteValue(self:remotableValue(), arr.length(modeValues) - 1)
+          retValues         = modeValues[remoteValue + 1]
+        end
+        self:sendMidi({ { x = retValues[1] }, { x = retValues[2] } })
+      end
+    end
+    function XTEncoder:sendMidi(midiGroup, kwargs)
+      self.surface:addToMidiQueue(remote.make_midi(self.leftOutputPattern, midiGroup[1]), kwargs)
+      self.surface:addToMidiQueue(remote.make_midi(self.rightOutputPattern, midiGroup[2]), kwargs)
+    end
+
+    XTEncoderLed = Class(SurfaceItem)
+    function XTEncoderLed:__classname() return 'XTEncoderLed' end
+    function XTEncoderLed:construct(surface, kwargs)
+      local name    = obj.get(kwargs, 'name', true)
+      local encoder = obj.get(kwargs, 'encoder', true)
+      local groups  = obj.get(kwargs, 'groups', false, {})
+
+      XTEncoderLed.super.construct(self, surface, {
+        name   = name,
+        min    = 0,
+        max    = math.pow(2, 13),
+        modes  = encoderLedModes,
+        output = {
+          auto_handle = false,
+          type        = 'value',
+        },
+        groups = groups,
+      })
+      self.encoder     = encoder
+      self.encoder.led = self
+    end
+    function XTEncoderLed:setState()
+      if not self.ledSides[1]:isEnabled() and not self.ledSides[2]:isEnabled() then
+        if self:isEnabled() then
+          local retValues   = { 0, 0 }
+          local modeValues  = self:modeData().values
+          local remoteValue = self:scaleRemoteValue(self:remotableValue(), arr.length(modeValues) - 1)
+          retValues         = modeValues[remoteValue + 1]
+          self.encoder:sendMidi({ { x = retValues[1] }, { x = retValues[2] } })
+        else
+          self.encoder:setState()
+        end
+      end
+    end
+
+    XTEncoderLedSide = Class(SurfaceItem)
+    function XTEncoderLedSide:__classname() return 'XTEncoderLedSide' end
+    function XTEncoderLedSide:construct(surface, kwargs)
+      local name        = obj.get(kwargs, 'name', true)
+      local encoder     = obj.get(kwargs, 'encoder', true)
+      local encoderLed  = obj.get(kwargs, 'encoderLed', true)
+      local isRightSide = obj.get(kwargs, 'isRightSide', true)
+      local sibling     = obj.get(kwargs, 'sibling', false)
+      local groups      = obj.get(kwargs, 'groups', false, {})
+
+      XTEncoderLedSide.super.construct(self, surface, {
+        name   = name,
+        min    = 0,
+        max    = math.pow(2, 13),
+        modes  = isRightSide and encoderRightSideModes or encoderLeftSideModes,
+        output = {
+          auto_handle = false,
+          type        = 'value',
+        },
+        groups = groups,
+      })
+      self.isRightSide = isRightSide
+
+      self.encoder     = encoder
+      self.led         = encoderLed
+
+      if not self.encoder.ledSides then
+        self.encoder.ledSides = {}
+      end
+      if not self.led.ledSides then
+        self.led.ledSides = {}
+      end
+
+      table.insert(self.encoder.ledSides, self)
+      table.insert(self.led.ledSides, self)
+
+      if sibling then
+        self.sibling         = sibling
+        self.sibling.sibling = self
+      end
+
+      self.outputPattern = self.isRightSide and self.encoder.rightOutputPattern or self.encoder.leftOutputPattern
+    end
+    function XTEncoderLedSide:setState()
+      if self:isEnabled() or self.sibling:isEnabled() then
+        local retValue = 0
+        if self:isEnabled() then
+          local modeValues  = self:modeData().values
+          local remoteValue = self:scaleRemoteValue(self:remotableValue(), arr.length(modeValues) - 1)
+          retValue          = modeValues[remoteValue + 1]
+        end
+        self.surface:addToMidiQueue(remote.make_midi(self.outputPattern, { x = retValue }))
+
       else
-        self.encoder:setState()
+        if self.led:isEnabled() then
+          self.led:setState()
+        else
+          self.encoder:setState()
+        end
       end
     end
   end
 
-  XTEncoderLedSide = Class(SurfaceItem)
-  function XTEncoderLedSide:__classname() return 'XTEncoderLedSide' end
-  function XTEncoderLedSide:construct(surface, kwargs)
-    local name        = obj.get(kwargs, 'name', true)
-    local encoder     = obj.get(kwargs, 'encoder', true)
-    local encoderLed  = obj.get(kwargs, 'encoderLed', true)
-    local isRightSide = obj.get(kwargs, 'isRightSide', true)
-    local sibling     = obj.get(kwargs, 'sibling', false)
-    local groups      = obj.get(kwargs, 'groups', false, {})
-
-    XTEncoderLedSide.super.construct(self, surface, {
-      name   = name,
-      min    = 0,
-      max    = math.pow(2, 13),
-      modes  = isRightSide and encoderRightSideModes or encoderLeftSideModes,
-      output = {
-        auto_handle = false,
-        type        = 'value',
-      },
-      groups = groups,
-    })
-    self.isRightSide = isRightSide
-
-    self.encoder     = encoder
-    self.led         = encoderLed
-
-    if not self.encoder.ledSides then
-      self.encoder.ledSides = {}
+  -- Fader Bank
+  do
+    XTFaderBank = Class()
+    function XTFaderBank:__classname() return 'XTFaderBank' end
+    function XTFaderBank:construct(surface)
+      self.surface               = surface
+      self.availableChannels     = { previous = 0, next = 0 }
+      self.checkItems            = {}
+      self.checkItemIds          = {}
+      self.lookupChannelsEnabled = {}
     end
-    if not self.led.ledSides then
-      self.led.ledSides = {}
+    function XTFaderBank:registerCheckItem(channelNr, checkItem)
+      self.checkItems[channelNr]            = checkItem
+      self.lookupChannelsEnabled[channelNr] = false
+      self.checkItemIds[checkItem.index]    = channelNr
+      checkItem.faderBank                   = self
+    end
+    function XTFaderBank:update(newScriptStates, changedItems)
+      for channelNr, checkItem in pairs(self.checkItems) do
+        if arr.hasValue(changedItems, checkItem.index) then
+          self.lookupChannelsEnabled[channelNr] = checkItem:isEnabled()
+        end
+      end
+      --if remote.get_time_ms() > 5000 then
+      --  debugger(self.lookupChannelsEnabled)
+      --end
     end
 
-    table.insert(self.encoder.ledSides, self)
-    table.insert(self.led.ledSides, self)
+    XTFaderBankCheckItem = Class(SurfaceItem)
+    function XTFaderBankCheckItem:__classname() return 'XTFaderBankCheckItem' end
+    function XTFaderBankCheckItem:construct(surface, kwargs)
+      local name = obj.get(kwargs, 'name', true)
 
-    if sibling then
-      self.sibling         = sibling
-      self.sibling.sibling = self
+      XTFaderBankCheckItem.super.construct(self, surface, {
+        name   = name,
+        output = {
+          auto_handle = false,
+          type        = 'text'
+        },
+      })
     end
-
-    self.outputPattern = self.isRightSide and self.encoder.rightOutputPattern or self.encoder.leftOutputPattern
   end
-  function XTEncoderLedSide:setState()
-    if self:isEnabled() or self.sibling:isEnabled() then
-      local retValue = 0
-      if self:isEnabled() then
-        local modeValues  = self:modeData().values
-        local remoteValue = self:scaleRemoteValue(self:remotableValue(), arr.length(modeValues) - 1)
-        retValue          = modeValues[remoteValue + 1]
-      end
-      self.surface:addToMidiQueue(remote.make_midi(self.outputPattern, { x = retValue }))
 
-    else
-      if self.led:isEnabled() then
-        self.led:setState()
-      else
-        self.encoder:setState()
+  -- Scribbles
+  do
+    XTScribbleManager = Class()
+    function XTScribbleManager:__classname() return 'XTScribbleManager' end
+    function XTScribbleManager:construct(surface)
+      self.surface                  = surface
+      self.baseChannel              = 1
+      self.holdValuesLayer          = false
+      self.prioritizeSecondaryItems = false
+      self.channelFocus             = false
+
+      self.scribbles                = {}
+      self.scribbleSourceItems      = {}
+    end
+    function XTScribbleManager:registerScribble(channelNr, scribble)
+      self.scribbles[channelNr] = scribble
+      scribble.manager          = self
+
+      for itemKey, item in pairs(scribble.sourceItems) do
+        self.scribbleSourceItems[item.index] = { channelNr, itemKey }
       end
+
+    end
+    function XTScribbleManager:collectChangedScribbleSourceItems(changedItems)
+      local changedScribbleSourceItems = {}
+      for itemIndex, itemData in pairs(self.scribbleSourceItems) do
+        local channelNr, itemKey = unpack(itemData)
+        if arr.hasValue(changedItems, itemIndex) then
+          if not obj.hasKey(changedScribbleSourceItems, channelNr) then
+            changedScribbleSourceItems[channelNr] = {}
+          end
+          table.insert(changedScribbleSourceItems[channelNr], itemKey)
+        end
+      end
+      debugger(changedScribbleSourceItems)
+    end
+    function XTScribbleManager:update(newScriptStates, changedItems)
+      if obj.length(newScriptStates) == 0 and arr.length(changedItems) == 0 then
+        return
+      end
+      local forceLayer = false
+      --for channelNr, itemKeys in self:collectChangedScribbleSourceItems(changedItems) do
+      --
+      --end
+    end
+
+    XTScribble = Class()
+    function XTScribble:__classname() return 'XTScribble' end
+    function XTScribble:construct(kwargs)
+      self.channelId   = obj.get(kwargs, 'channelId', true)
+      self.sourceItems = obj.get(kwargs, 'sourceItems', true)
+      for _, item in pairs(self.sourceItems) do item.scribble = self end
+
+      self.rowsCount   = 2
+      self.charsPerRow = 7
+
+      self.colors      = { off = 0, green = 2, yellow = 3, blue = 4, pink = 5, cyan = 6, white = 7 }
+
+    end
+    function XTScribble:getTextValues(text)
+      local maxChars = self.rowsCount * self.charsPerRow
+      local _text    = string.format("%-" .. maxChars .. "s", text):sub(1, maxChars)
+      local values   = {}
+      for i = 1, _text:len() do table.insert(values, _text:byte(i)) end
+      return values
+    end
+    function XTScribble:sendText(text, kwargs)
+      local _kwargs = kwargs or {}
+      local color   = obj.get(_kwargs, 'color', false, self.colors.off)
+      local _color  = obj.get(_kwargs, 'invert', false, false) and color + 64 or color
+      local _text   = text
+      local payload = {
+        midi.sysexStart,
+        0, 0, 102, 88, -- Header + Scribble Byte
+        (32 + self.channelId),
+        _color,
+        self:getTextValues(_text),
+        midi.sysexEnd
+      }
+      self.manager.surface:addToMidiQueue(arr.flat(payload))
+    end
+
+    XTScribbleColor = Class(SurfaceItem)
+    function XTScribbleColor:__classname() return 'XTScribbleColor' end
+    function XTScribbleColor:construct(surface, kwargs)
+      XTScribbleColor.super.construct(self, surface, {
+        name   = obj.get(kwargs, 'name', true),
+        output = { auto_handle = false, type = 'text' },
+      })
+    end
+    function XTScribbleColor:setState()
+      self.scribble:sendText('test', { color = self.scribble.colors.green, invert = true })
+      --if not self.ledSides[1]:isEnabled() and not self.ledSides[2]:isEnabled() and not self.led:isEnabled() then
+      --  local retValues = { 0, 0 }
+      --  if self:isEnabled() then
+      --    local modeValues  = self:modeData().values
+      --    local remoteValue = self:scaleRemoteValue(self:remotableValue(), arr.length(modeValues) - 1)
+      --    retValues         = modeValues[remoteValue + 1]
+      --  end
+      --  self:sendMidi({ { x = retValues[1] }, { x = retValues[2] } })
+      --end
+    end
+
+    XTChannelName = Class(SurfaceItem)
+    function XTChannelName:__classname() return 'XTChannelName' end
+    function XTChannelName:construct(surface, kwargs)
+      XTChannelName.super.construct(self, surface, {
+        name   = obj.get(kwargs, 'name', true),
+        output = { auto_handle = false, type = 'text' },
+      })
     end
   end
 
@@ -1830,27 +2108,111 @@ do
   function XTouch:construct(manufacturer, model)
     XTouch.super.construct(self)
 
+    local channelCount   = 8
+
+    self.scribbleManager = XTScribbleManager(self)
+    self.faderBank       = XTFaderBank(self)
+
+
+    -- Script Items
+    do
+      self:registerItem(ScriptItem, { name = 'Scope' })
+      self:registerItem(ScriptItem, { name = 'Var' })
+      self:registerItem(ScriptItem, { name = 'Encoder_Assign' })
+      self:registerItem(ScriptItem, { name = 'Modifier' })
+      self:registerItem(ScriptItem, { name = 'Remote_Base_Channel' })
+      self:registerItem(ScriptItem, { name = 'Channel_Focus' })
+      self:registerItem(ScriptItem, { name = 'Global_View' })
+      self:registerItem(ScriptItem, { name = 'Timecode_View' })
+      self:registerItem(ScriptItem, { name = 'Jog_State_Fix' })
+    end
+
+    -- Fader Bank Check
+    do
+      for channelNr = 1, 8 do
+        local itemName  = str.f('Ch %s: FBC', channelCount + channelNr)
+        local checkItem = self:registerItem(XTFaderBankCheckItem, { name = itemName })
+        self.faderBank:registerCheckItem(channelNr, checkItem)
+      end
+    end
+
+    -- Master Section Buttons
+    do
+      local masterSectionButtonData = {
+        -- Main Fader
+        { 'Main', { [50] = { name = 'Flip' } } },
+        -- Encoder Assign
+        { 'EA', { [40] = { name = 'Track' }, [42] = { name = 'Pan/Surround' }, [44] = { name = 'Eq' },
+                  [41] = { name = 'Send' }, [43] = { name = 'Plug-In' }, [45] = { name = 'Inst' } } },
+        -- Timecode Display
+        { 'TC', { [52]  = { name = 'Name/Value', noOutput = true }, [53] = { name = 'SMPTE/Beats', noOutput = true },
+                  [113] = { name = 'SMPTE Led', noInput = true }, [114] = { name = 'Beats Led', noInput = true },
+                  [115] = { name = 'Solo Led', noInput = true } } },
+        -- View
+        { 'View', { [51] = { name = 'Global View' }, [62] = { name = 'Midi Tracks' }, [63] = { name = 'Inputs' },
+                    [64] = { name = 'Audio Tracks' }, [65] = { name = 'Audio Inst' }, [66] = { name = 'Aux' },
+                    [67] = { name = 'Buses' }, [68] = { name = 'Outputs' }, [69] = { name = 'User' } } },
+        -- Function
+        { 'Func', { [54] = { name = 'F1' }, [55] = { name = 'F2' }, [56] = { name = 'F3' }, [57] = { name = 'F4' },
+                    [58] = { name = 'F5' }, [59] = { name = 'F6' }, [60] = { name = 'F7' }, [61] = { name = 'F8' } } },
+        -- Modifiers
+        { 'Mod', { [70] = { name = 'Shift' }, [71] = { name = 'Option' },
+                   [72] = { name = 'Control' }, [73] = { name = 'Alt' } } },
+        -- Automation
+        { 'Aut', { [74] = { name = 'Read/Off' }, [75] = { name = 'Write' }, [76] = { name = 'Trim' },
+                   [77] = { name = 'Touch' }, [78] = { name = 'Latch' }, [79] = { name = 'Group' } } },
+        -- Utility
+        { 'Util', { [80] = { name = 'Save' }, [81] = { name = 'Undo' },
+                    [82] = { name = 'Cancel' }, [83] = { name = 'Enter' } } },
+        -- Transport
+        { 'Tr', { [84] = { name = 'Marker' }, [85] = { name = 'Nudge' }, [86] = { name = 'Cycle' },
+                  [87] = { name = 'Drop' }, [88] = { name = 'Replace' }, [89] = { name = 'Click' },
+                  [90] = { name = 'Solo' }, [91] = { name = 'Rewind' }, [92] = { name = 'Fast Forward' },
+                  [93] = { name = 'Stop' }, [94] = { name = 'Play' }, [95] = { name = 'Record' } } },
+        -- Page Selection
+        { 'Page', { [46] = { name = 'FB Left', faderBankSteps = -8 }, [47] = { name = 'FB Right', faderBankSteps = 8 },
+                    [48] = { name = 'Ch Left', faderBankSteps = -1 }, [49] = { name = 'Ch Right', faderBankSteps = 1 } } },
+        -- Navigation
+        { 'Nav', { [96] = { name = 'Up' }, [97] = { name = 'Down' }, [98] = { name = 'Left' },
+                   [99] = { name = 'Right' }, [100] = { name = 'Zoom' }, [101] = { name = 'Scrub' } } },
+      }
+      for _, v in ipairs(masterSectionButtonData) do
+        local groupName, buttomDataGroup = unpack(v)
+        for address, buttonData in pairs(buttomDataGroup) do
+          local itemClass = XTLedButtonItem
+          if buttonData.noOutput then
+            itemClass = XTButtonItem
+          elseif buttonData.noInput then
+            itemClass = XTLedItem
+          end
+          self:registerItem(itemClass, {
+            name    = groupName .. ": " .. buttonData.name,
+            address = address
+          })
+        end
+      end
+    end
+
     -- Channels 1 - 8
-    local channelCount = 8
     for channelNr = 1, channelCount do
       local itemNamePrefix  = str.f('Ch %s: ', channelNr)
       local channelId       = channelNr - 1
 
-      local encoder         = self:addItem(XTEncoder, {
+      local encoder         = self:registerItem(XTEncoder, {
         name      = itemNamePrefix .. 'E',
         channelId = channelId
       })
-      local encoderLed      = self:addItem(XTEncoderLed, {
+      local encoderLed      = self:registerItem(XTEncoderLed, {
         name    = itemNamePrefix .. 'ELed',
         encoder = encoder,
       })
-      local leftEncoderLed  = self:addItem(XTEncoderLedSide, {
+      local leftEncoderLed  = self:registerItem(XTEncoderLedSide, {
         name        = itemNamePrefix .. 'ELed L',
         encoder     = encoder,
         encoderLed  = encoderLed,
         isRightSide = false
       })
-      local rightEncoderLed = self:addItem(XTEncoderLedSide, {
+      local rightEncoderLed = self:registerItem(XTEncoderLedSide, {
         name        = itemNamePrefix .. 'ELed R',
         encoder     = encoder,
         encoderLed  = encoderLed,
@@ -1858,10 +2220,28 @@ do
         sibling     = leftEncoderLed
       })
 
+      local scribbleColor   = self:registerItem(XTScribbleColor, {
+        name = itemNamePrefix .. 'ScColor'
+      })
+
+      local channelName     = self:registerItem(XTChannelName, {
+        name = itemNamePrefix .. 'ChName'
+      })
+
+      self.scribbleManager:registerScribble(channelNr, XTScribble({ channelId   = channelId,
+                                                                    sourceItems = {
+                                                                      encoder       = encoder,
+                                                                      scribbleColor = scribbleColor,
+                                                                      channelName   = channelName
+                                                                    } }))
+
     end
 
   end
-
+  function XTouch:setState(changedItems, changedItemsPerGroup, newScriptStates)
+    self.scribbleManager:update(newScriptStates, changedItems)
+    self.faderBank:update(newScriptStates, changedItems)
+  end
   function XTouch:processSysexEvent(event)
     -- XCTL Handshake
     local eventValues = {}
@@ -1884,3 +2264,5 @@ do
     return false
   end
 end
+
+--debugger(arr.flat({ 1, 2, { 3, 4, { 5, 6, { 7, 8, 9 } } } }))

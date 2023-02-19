@@ -49,3 +49,15 @@ Map	Ch 8: ELed		Channel 8 Width		spreadb
 Map	Ch 3: ELed L		Channel 3 FX1 Send Level		dotb
 Map	Ch 4: ELed L		Channel 4 FX1 Send Level		dotb
 Map	Ch 4: ELed R		Channel 4 FX2 Send Level		dotb
+
+Map	Ch 1: ChName		"Test"
+Map	Ch 1: ScColor		"red"
+
+Map	Ch 9: FBC		Channel 9 Channel Name
+Map	Ch 10: FBC		Channel 10 Channel Name
+Map	Ch 11: FBC		Channel 11 Channel Name
+Map	Ch 12: FBC		Channel 12 Channel Name
+Map	Ch 13: FBC		Channel 13 Channel Name
+Map	Ch 14: FBC		Channel 14 Channel Name
+Map	Ch 15: FBC		Channel 15 Channel Name
+Map	Ch 16: FBC		Channel 16 Channel Name
