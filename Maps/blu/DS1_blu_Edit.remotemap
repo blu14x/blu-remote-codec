@@ -65,9 +65,9 @@ Map	Main: R1		Rotary 17
 Map	Main: R2		Rotary 18
 Map	Main: R3		Rotary 19
 Map	Main: R4		Rotary 20
-Map	Main: B1		Button 17		wy
-Map	Main: B2		Button 18		wy
-Map	Main: B3		Button 19		wy
+Map	Main: B1		Button 17		oy
+Map	Main: B2		Button 18		oy
+Map	Main: B3		Button 19		oy
 Map	Main: B4		Button 20		oy
 Map	Main: B5		Button 21		oy
 Map	Main: B6		Button 22		oy
