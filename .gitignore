@@ -1,8 +1,2 @@
 .idea
 Remote SDK.lnk
-Codecs/Midi\ Codecs/*
-Codecs/Lua\ Codecs/*
-!Codecs/Lua\ Codecs/blu
-
-Maps/*
-!Maps/blu
