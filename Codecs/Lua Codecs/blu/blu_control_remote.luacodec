@@ -1,0 +1,18 @@
+version = { 1, 2, 0 }
+
+function remote_supported_control_surfaces()
+  local manufacturer = 'blu'
+  return {
+    {
+      manufacturer    = manufacturer,
+      model           = 'X-Touch',
+      source          = 'blu_control_remote.lua',
+      picture         = 'blu_control_remote.png',
+      in_ports        = { { description = 'In  Port' } },
+      out_ports       = { { description = 'Out Port', optional = false } },
+      setup_info_text = [[
+          1.2.0
+      ]],
+    },
+  }
+end

@@ -1,0 +1,1293 @@
+Propellerhead Remote Mapping File
+File Format Version	1.0.0
+Control Surface Manufacturer	blu
+Control Surface Model	X-Touch
+Map Version	1.0.0
+
+// This file a generated .remotemap!
+// Adjustments should be made in "xtouch_remotemap.py".
+
+
+
+
+
+Scope	Propellerheads	Reason Document
+
+Define Group	srn	srn_off	srn_on
+Define Group	ssr	ssr_off	ssr_on
+Define Group	jog_ll	jog_ll_on	jog_ll_off
+Define Group	jog_lr	jog_lr_on	jog_lr_off
+Define Group	jog_ss	jog_ss_loop	jog_ss_song
+Define Group	jog_sc	jog_sc_bar	jog_sc_beat
+Define Group	gtl	gtl_off	gtl_on
+Define Group	tcf	tcf_beats	tcf_smpte
+
+
+Map	TC: Name/Value		srn=srn_on		hold	srn_off
+Map	TC: Name/Value		srn=srn_off		hold	srn_on
+Map	View: Global View		ssr=ssr_on		s	ssr_off
+Map	View: Global View		ssr=ssr_off		f	ssr_on
+
+Map	_SRN		"off"			srn_off
+Map	_SRN		"on"			srn_on
+Map	_SSR		"off"			ssr_off
+Map	_SSR		"on"			ssr_on
+
+
+Map	Nav: Zoom		jog_ss=jog_ss_loop		sf
+Map	Nav: Down		jog_ss=jog_ss_song		sf
+Map	Nav: Left		jog_ll=jog_ll_on		o	jog_ll_off
+Map	Nav: Left		jog_ll=jog_ll_off		s	jog_ll_on
+Map	Nav: Right		jog_lr=jog_lr_on		o	jog_lr_off
+Map	Nav: Right		jog_lr=jog_lr_off		s	jog_lr_on
+Map	Nav: Scrub		jog_sc=jog_sc_beat		o	jog_sc_bar
+Map	Nav: Scrub		jog_sc=jog_sc_bar		s	jog_sc_beat
+
+Map	Jog Wheel		Song Position	61440		jog_ss_song	jog_sc_bar
+Map	Jog Wheel		Song Position	15360		jog_ss_song	jog_sc_beat
+Map	Jog Wheel		Left Loop	61440		jog_ss_loop	jog_sc_bar	jog_ll_on
+Map	Jog Wheel		Left Loop	15360		jog_ss_loop	jog_sc_beat	jog_ll_on
+Map	Jog Wheel Clone 1		Right Loop	61440		jog_ss_loop	jog_sc_bar	jog_lr_on
+Map	Jog Wheel Clone 1		Right Loop	15360		jog_ss_loop	jog_sc_beat	jog_lr_on
+
+
+Map	Tr: Drop		gtl=gtl_on		s_hold	gtl_off
+Map	Tr: Drop		gtl=gtl_off		f_hold	gtl_on
+
+Map	Tr: Rewind		Rewind		sf	gtl_off
+Map	Tr: Fast Forward		Fast Forward		sf	gtl_off
+Map	Tr: Stop		Stop		sf	gtl_off
+Map	Tr: Play		Play		sf	gtl_off
+Map	Tr: Record		Record		sf	gtl_off
+
+Map	Tr: Rewind		Goto Left Locator		sf	gtl_on
+Map	Tr: Fast Forward		Goto Right Locator		sf	gtl_on
+
+
+Map	Aut: Read/Off		Reset Automation Override		os
+Map	Tr: Cycle		Loop On/Off		sf
+Map	Tr: Click		Click On/Off		sf
+
+
+Map	TC: SMPTE/Beats		tcf=tcf_smpte			tcf_beats
+Map	TC: SMPTE/Beats		tcf=tcf_beats			tcf_smpte
+
+Map	TC: Beats LED		1			tcf_beats
+Map	TC: Bars		Bar Position		decimal_trailing	tcf_beats
+Map	TC: Beats		Beat Position		decimal_trailing	tcf_beats
+Map	TC: Sub Division		Sixteenth Position		decimal_trailing	tcf_beats
+Map	TC: Ticks		Tick Position			tcf_beats
+
+Map	TC: SMPTE LED		1			tcf_smpte
+Map	TC: Bars		Hour Position		decimal_trailing	tcf_smpte
+Map	TC: Beats		Minute Position		decimal_trailing	tcf_smpte
+Map	TC: Sub Division		Second Position		decimal_trailing	tcf_smpte
+Map	TC: Ticks		Millisecond Position			tcf_smpte
+
+
+
+Scope	Propellerheads	Reason Master Section
+
+Define Group	cf	cf_off	cf_c1	cf_c2	cf_c3	cf_c4	cf_c5	cf_c6	cf_c7	cf_c8	cf_c9
+Define Group	ea	ea_fdr	ea_inp	ea_dyn	ea_eq	ea_ins	ea_snd
+Define Group	ea_mas	ea_mas_cmp	ea_mas_snd	ea_mas_ins	ea_mas_rtn
+Define Group	ea_dyn	ea_dyn_cmp	ea_dyn_gat
+Define Group	ea_eq	ea_eq_lpf	ea_eq_hpf
+Define Group	ea_eq_m	ea_eq_m_off	ea_eq_m_m1
+Define Group	ea_snd	ea_snd_fx1	ea_snd_fx2	ea_snd_fx3	ea_snd_fx4	ea_snd_fx5	ea_snd_fx6	ea_snd_fx7	ea_snd_fx8
+Define Group	ea_fx	ea_fx_fx1_4	ea_fx_fx5_8
+Define Group	ea_fdr_m	ea_fdr_m_off	ea_fdr_m_m1
+Define Group	jog	jog_off	jog_on
+
+
+Map	_S		"Reason Master Section"		
+Map	Ch 1: Select		cf=cf_c1		o	cf_off
+Map	Main: Flip		cf=cf_off		s	cf_c1
+Map	TC: Assignment		"1"			cf_c1
+Map	_CF		"1"			cf_c1
+
+Map	Ch 2: Select		cf=cf_c2		o	cf_off
+Map	Main: Flip		cf=cf_off		s	cf_c2
+Map	TC: Assignment		"2"			cf_c2
+Map	_CF		"2"			cf_c2
+
+Map	Ch 3: Select		cf=cf_c3		o	cf_off
+Map	Main: Flip		cf=cf_off		s	cf_c3
+Map	TC: Assignment		"3"			cf_c3
+Map	_CF		"3"			cf_c3
+
+Map	Ch 4: Select		cf=cf_c4		o	cf_off
+Map	Main: Flip		cf=cf_off		s	cf_c4
+Map	TC: Assignment		"4"			cf_c4
+Map	_CF		"4"			cf_c4
+
+Map	Ch 5: Select		cf=cf_c5		o	cf_off
+Map	Main: Flip		cf=cf_off		s	cf_c5
+Map	TC: Assignment		"5"			cf_c5
+Map	_CF		"5"			cf_c5
+
+Map	Ch 6: Select		cf=cf_c6		o	cf_off
+Map	Main: Flip		cf=cf_off		s	cf_c6
+Map	TC: Assignment		"6"			cf_c6
+Map	_CF		"6"			cf_c6
+
+Map	Ch 7: Select		cf=cf_c7		o	cf_off
+Map	Main: Flip		cf=cf_off		s	cf_c7
+Map	TC: Assignment		"7"			cf_c7
+Map	_CF		"7"			cf_c7
+
+Map	Ch 8: Select		cf=cf_c8		o	cf_off
+Map	Main: Flip		cf=cf_off		s	cf_c8
+Map	TC: Assignment		"8"			cf_c8
+Map	_CF		"8"			cf_c8
+
+Map	Main: Flip		cf=cf_c9		o	cf_off
+Map	Main: Flip		cf=cf_off		s	cf_c9
+Map	TC: Assignment		"Ma"			cf_c9
+Map	_CF		"9"			cf_c9
+
+
+Map	EA: Track		ea=ea_inp		sf
+Map	EA: Pan/Surround		ea=ea_dyn		sf
+Map	EA: Eq		ea=ea_eq		sf
+Map	EA: Send		ea=ea_ins		sf
+Map	EA: Plug-In		ea=ea_snd		sf
+Map	EA: Inst		ea=ea_fdr		sf
+
+Map	EA: Track		0		o	cf_c9
+Map	EA: Pan/Surround		ea_mas=ea_mas_cmp		sf	cf_c9
+Map	EA: Eq		ea_mas=ea_mas_snd		sf	cf_c9
+Map	EA: Send		ea_mas=ea_mas_rtn		sf	cf_c9
+Map	EA: Plug-In		ea_mas=ea_mas_ins		sf	cf_c9
+Map	EA: Inst		0		o	cf_c9
+
+Map	_EA		"Input"			ea_inp
+Map	_EA		"Dynamics"			ea_dyn
+Map	_EA		"Equalizer"			ea_eq
+Map	_EA		"Inserts"			ea_ins
+Map	_EA		"Send"			ea_snd
+Map	_EA		"Fader"			ea_fdr
+
+Map	_EA		"Master Compressor"			cf_c9	ea_mas_cmp
+Map	_EA		"FX Send"			cf_c9	ea_mas_snd
+Map	_EA		"Master Inserts"			cf_c9	ea_mas_ins
+Map	_EA		"FX Return"			cf_c9	ea_mas_rtn
+
+
+Map	_G		"Low Pass Filter"			cf_off	ea_eq	ea_eq_lpf
+Map	_G		"High Pass Filter"			cf_off	ea_eq	ea_eq_hpf
+
+Map	_G		"Send 1"			cf_off	ea_snd	ea_snd_fx1
+Map	_G		"Send 2"			cf_off	ea_snd	ea_snd_fx2
+Map	_G		"Send 3"			cf_off	ea_snd	ea_snd_fx3
+Map	_G		"Send 4"			cf_off	ea_snd	ea_snd_fx4
+Map	_G		"Send 5"			cf_off	ea_snd	ea_snd_fx5
+Map	_G		"Send 6"			cf_off	ea_snd	ea_snd_fx6
+Map	_G		"Send 7"			cf_off	ea_snd	ea_snd_fx7
+Map	_G		"Send 8"			cf_off	ea_snd	ea_snd_fx8
+
+Map	_G		"Comp"			ea_dyn	ea_dyn_cmp
+Map	_G		"Gate"			ea_dyn	ea_dyn_gat
+
+Map	_G		"Snd FX 1-4"			ea_snd	ea_fx_fx1_4
+Map	_G		"Snd FX 5-8"			ea_snd	ea_fx_fx5_8
+
+Map	_G		"Snd FX 1-4"			cf_c9	ea_mas_snd	ea_fx_fx1_4
+Map	_G		"Snd FX 5-8"			cf_c9	ea_mas_snd	ea_fx_fx5_8
+
+Map	_G		"Fx Rtn 1-4"			cf_c9	ea_mas_rtn	ea_fx_fx1_4
+Map	_G		"Fx Rtn 5-8"			cf_c9	ea_mas_rtn	ea_fx_fx5_8
+
+
+Map	_M		"Mid F Freq"			ea_eq	ea_eq_m_off
+Map	_M		"Mid F Q"			ea_eq	ea_eq_m_m1
+
+Map	_M		"Panorama"			cf_off	ea_fdr	ea_fdr_m_off
+Map	_M		"Width"			cf_off	ea_fdr	ea_fdr_m_m1
+
+Map	_RBC		Remote Base Channel		
+Map	_FBC 1		Channel 9 Channel Name		
+Map	_FBC 2		Channel 10 Channel Name		
+Map	_FBC 3		Channel 11 Channel Name		
+Map	_FBC 4		Channel 12 Channel Name		
+Map	_FBC 5		Channel 13 Channel Name		
+Map	_FBC 6		Channel 14 Channel Name		
+Map	_FBC 7		Channel 15 Channel Name		
+Map	_FBC 8		Channel 16 Channel Name		
+
+
+Map	Nav: Up		jog=jog_on		s	jog_off
+Map	Nav: Up		jog=jog_off		f	jog_on
+
+Map	_JRN		"Remote Base Channel Delta"			jog_on	cf_off
+Map	Jog Wheel		Remote Base Channel Delta			jog_on	cf_off
+Map	_JRN		""			jog_on
+Map	Jog Wheel		0			jog_on
+Map	Jog Wheel Clone 1		0			jog_on
+Map	Jog Wheel Clone 2		0			jog_on
+Map	Nav: Zoom		0			jog_on
+Map	Nav: Down		0			jog_on
+
+Map	Page: FB Left		Previous 8 Remote Base Channel		os	cf_off
+Map	Page: Ch Left		Previous Remote Base Channel		os	cf_off
+Map	Page: FB Right		Next 8 Remote Base Channel		os	cf_off
+Map	Page: Ch Right		Next Remote Base Channel		os	cf_off
+
+
+Map	Func: F1		ea_dyn=ea_dyn_cmp		sf	cf_off	ea_dyn
+Map	Func: F2		ea_dyn=ea_dyn_gat		sf	cf_off	ea_dyn
+Map	Func: F1		ea_eq=ea_eq_lpf		sf	cf_off	ea_eq
+Map	Func: F2		ea_eq=ea_eq_hpf		sf	cf_off	ea_eq
+Map	Mod: Shift		ea_fdr_m=ea_fdr_m_m1		s_hold	cf_off	ea_fdr	ea_fdr_m_off
+Map	Mod: Shift		ea_fdr_m=ea_fdr_m_off		s_hold	cf_off	ea_fdr	ea_fdr_m_m1
+Map	Func: F1		ea_snd=ea_snd_fx1		sf	cf_off	ea_snd
+Map	Func: F2		ea_snd=ea_snd_fx2		sf	cf_off	ea_snd
+Map	Func: F3		ea_snd=ea_snd_fx3		sf	cf_off	ea_snd
+Map	Func: F4		ea_snd=ea_snd_fx4		sf	cf_off	ea_snd
+Map	Func: F5		ea_snd=ea_snd_fx5		sf	cf_off	ea_snd
+Map	Func: F6		ea_snd=ea_snd_fx6		sf	cf_off	ea_snd
+Map	Func: F7		ea_snd=ea_snd_fx7		sf	cf_off	ea_snd
+Map	Func: F8		ea_snd=ea_snd_fx8		sf	cf_off	ea_snd
+
+
+Map	Main: Fader		Master Level			cf_off
+
+Map	Ch 1: Scribble Header		Channel 1 Channel Name		rms	cf_off
+Map	Ch 1: Scribble Color		"header_suffix"			cf_off
+Map	Ch 1: Level Indicator		Channel 1 VU Meter			cf_off
+Map	Ch 1: Fader		Channel 1 Level			cf_off
+Map	Ch 1: Solo		Channel 1 Solo			cf_off
+Map	Ch 1: Mute		Channel 1 Mute			cf_off
+
+Map	Ch 1: Encoder		Channel 1 Input Gain		bip	cf_off	ea_inp
+Map	Ch 1: Record		Channel 1 Invert Phase			cf_off	ea_inp
+
+Map	Ch 1: Encoder		Channel 1 C Threshold		fill	cf_off	ea_dyn	ea_dyn_cmp
+Map	Ch 1: Record		Channel 1 Comp On			cf_off	ea_dyn	ea_dyn_cmp
+Map	Ch 1: Encoder		Channel 1 G Threshold		fill	cf_off	ea_dyn	ea_dyn_gat
+Map	Ch 1: Record		Channel 1 Gate On			cf_off	ea_dyn	ea_dyn_gat
+
+Map	Ch 1: Encoder		Channel 1 LPF Frequency		fill	cf_off	ea_eq	ea_eq_lpf
+Map	Ch 1: Record		Channel 1 LPF On			cf_off	ea_eq	ea_eq_lpf
+Map	Ch 1: Encoder		Channel 1 HPF Frequency		fill_mir_rev	cf_off	ea_eq	ea_eq_hpf
+Map	Ch 1: Record		Channel 1 HPF On			cf_off	ea_eq	ea_eq_hpf
+
+Map	Ch 1: Record		Channel 1 Bypass Insert FX			cf_off	ea_ins
+
+Map	Ch 1: Encoder		Channel 1 FX1 Send Level		fill	cf_off	ea_snd	ea_snd_fx1
+Map	Ch 1: Record		Channel 1 FX1 Send On			cf_off	ea_snd	ea_snd_fx1
+Map	Ch 1: Encoder		Channel 1 FX2 Send Level		fill	cf_off	ea_snd	ea_snd_fx2
+Map	Ch 1: Record		Channel 1 FX2 Send On			cf_off	ea_snd	ea_snd_fx2
+Map	Ch 1: Encoder		Channel 1 FX3 Send Level		fill	cf_off	ea_snd	ea_snd_fx3
+Map	Ch 1: Record		Channel 1 FX3 Send On			cf_off	ea_snd	ea_snd_fx3
+Map	Ch 1: Encoder		Channel 1 FX4 Send Level		fill	cf_off	ea_snd	ea_snd_fx4
+Map	Ch 1: Record		Channel 1 FX4 Send On			cf_off	ea_snd	ea_snd_fx4
+Map	Ch 1: Encoder		Channel 1 FX5 Send Level		fill	cf_off	ea_snd	ea_snd_fx5
+Map	Ch 1: Record		Channel 1 FX5 Send On			cf_off	ea_snd	ea_snd_fx5
+Map	Ch 1: Encoder		Channel 1 FX6 Send Level		fill	cf_off	ea_snd	ea_snd_fx6
+Map	Ch 1: Record		Channel 1 FX6 Send On			cf_off	ea_snd	ea_snd_fx6
+Map	Ch 1: Encoder		Channel 1 FX7 Send Level		fill	cf_off	ea_snd	ea_snd_fx7
+Map	Ch 1: Record		Channel 1 FX7 Send On			cf_off	ea_snd	ea_snd_fx7
+Map	Ch 1: Encoder		Channel 1 FX8 Send Level		fill	cf_off	ea_snd	ea_snd_fx8
+Map	Ch 1: Record		Channel 1 FX8 Send On			cf_off	ea_snd	ea_snd_fx8
+
+Map	Ch 1: Encoder		Channel 1 Pan		rms_pan	cf_off	ea_fdr	ea_fdr_m_off
+Map	Ch 1: Encoder		Channel 1 Width		fill_spread	cf_off	ea_fdr	ea_fdr_m_m1
+
+
+Map	Ch 2: Scribble Header		Channel 2 Channel Name		rms	cf_off
+Map	Ch 2: Scribble Color		"header_suffix"			cf_off
+Map	Ch 2: Level Indicator		Channel 2 VU Meter			cf_off
+Map	Ch 2: Fader		Channel 2 Level			cf_off
+Map	Ch 2: Solo		Channel 2 Solo			cf_off
+Map	Ch 2: Mute		Channel 2 Mute			cf_off
+
+Map	Ch 2: Encoder		Channel 2 Input Gain		bip	cf_off	ea_inp
+Map	Ch 2: Record		Channel 2 Invert Phase			cf_off	ea_inp
+
+Map	Ch 2: Encoder		Channel 2 C Threshold		fill	cf_off	ea_dyn	ea_dyn_cmp
+Map	Ch 2: Record		Channel 2 Comp On			cf_off	ea_dyn	ea_dyn_cmp
+Map	Ch 2: Encoder		Channel 2 G Threshold		fill	cf_off	ea_dyn	ea_dyn_gat
+Map	Ch 2: Record		Channel 2 Gate On			cf_off	ea_dyn	ea_dyn_gat
+
+Map	Ch 2: Encoder		Channel 2 LPF Frequency		fill	cf_off	ea_eq	ea_eq_lpf
+Map	Ch 2: Record		Channel 2 LPF On			cf_off	ea_eq	ea_eq_lpf
+Map	Ch 2: Encoder		Channel 2 HPF Frequency		fill_mir_rev	cf_off	ea_eq	ea_eq_hpf
+Map	Ch 2: Record		Channel 2 HPF On			cf_off	ea_eq	ea_eq_hpf
+
+Map	Ch 2: Record		Channel 2 Bypass Insert FX			cf_off	ea_ins
+
+Map	Ch 2: Encoder		Channel 2 FX1 Send Level		fill	cf_off	ea_snd	ea_snd_fx1
+Map	Ch 2: Record		Channel 2 FX1 Send On			cf_off	ea_snd	ea_snd_fx1
+Map	Ch 2: Encoder		Channel 2 FX2 Send Level		fill	cf_off	ea_snd	ea_snd_fx2
+Map	Ch 2: Record		Channel 2 FX2 Send On			cf_off	ea_snd	ea_snd_fx2
+Map	Ch 2: Encoder		Channel 2 FX3 Send Level		fill	cf_off	ea_snd	ea_snd_fx3
+Map	Ch 2: Record		Channel 2 FX3 Send On			cf_off	ea_snd	ea_snd_fx3
+Map	Ch 2: Encoder		Channel 2 FX4 Send Level		fill	cf_off	ea_snd	ea_snd_fx4
+Map	Ch 2: Record		Channel 2 FX4 Send On			cf_off	ea_snd	ea_snd_fx4
+Map	Ch 2: Encoder		Channel 2 FX5 Send Level		fill	cf_off	ea_snd	ea_snd_fx5
+Map	Ch 2: Record		Channel 2 FX5 Send On			cf_off	ea_snd	ea_snd_fx5
+Map	Ch 2: Encoder		Channel 2 FX6 Send Level		fill	cf_off	ea_snd	ea_snd_fx6
+Map	Ch 2: Record		Channel 2 FX6 Send On			cf_off	ea_snd	ea_snd_fx6
+Map	Ch 2: Encoder		Channel 2 FX7 Send Level		fill	cf_off	ea_snd	ea_snd_fx7
+Map	Ch 2: Record		Channel 2 FX7 Send On			cf_off	ea_snd	ea_snd_fx7
+Map	Ch 2: Encoder		Channel 2 FX8 Send Level		fill	cf_off	ea_snd	ea_snd_fx8
+Map	Ch 2: Record		Channel 2 FX8 Send On			cf_off	ea_snd	ea_snd_fx8
+
+Map	Ch 2: Encoder		Channel 2 Pan		rms_pan	cf_off	ea_fdr	ea_fdr_m_off
+Map	Ch 2: Encoder		Channel 2 Width		fill_spread	cf_off	ea_fdr	ea_fdr_m_m1
+
+
+Map	Ch 3: Scribble Header		Channel 3 Channel Name		rms	cf_off
+Map	Ch 3: Scribble Color		"header_suffix"			cf_off
+Map	Ch 3: Level Indicator		Channel 3 VU Meter			cf_off
+Map	Ch 3: Fader		Channel 3 Level			cf_off
+Map	Ch 3: Solo		Channel 3 Solo			cf_off
+Map	Ch 3: Mute		Channel 3 Mute			cf_off
+
+Map	Ch 3: Encoder		Channel 3 Input Gain		bip	cf_off	ea_inp
+Map	Ch 3: Record		Channel 3 Invert Phase			cf_off	ea_inp
+
+Map	Ch 3: Encoder		Channel 3 C Threshold		fill	cf_off	ea_dyn	ea_dyn_cmp
+Map	Ch 3: Record		Channel 3 Comp On			cf_off	ea_dyn	ea_dyn_cmp
+Map	Ch 3: Encoder		Channel 3 G Threshold		fill	cf_off	ea_dyn	ea_dyn_gat
+Map	Ch 3: Record		Channel 3 Gate On			cf_off	ea_dyn	ea_dyn_gat
+
+Map	Ch 3: Encoder		Channel 3 LPF Frequency		fill	cf_off	ea_eq	ea_eq_lpf
+Map	Ch 3: Record		Channel 3 LPF On			cf_off	ea_eq	ea_eq_lpf
+Map	Ch 3: Encoder		Channel 3 HPF Frequency		fill_mir_rev	cf_off	ea_eq	ea_eq_hpf
+Map	Ch 3: Record		Channel 3 HPF On			cf_off	ea_eq	ea_eq_hpf
+
+Map	Ch 3: Record		Channel 3 Bypass Insert FX			cf_off	ea_ins
+
+Map	Ch 3: Encoder		Channel 3 FX1 Send Level		fill	cf_off	ea_snd	ea_snd_fx1
+Map	Ch 3: Record		Channel 3 FX1 Send On			cf_off	ea_snd	ea_snd_fx1
+Map	Ch 3: Encoder		Channel 3 FX2 Send Level		fill	cf_off	ea_snd	ea_snd_fx2
+Map	Ch 3: Record		Channel 3 FX2 Send On			cf_off	ea_snd	ea_snd_fx2
+Map	Ch 3: Encoder		Channel 3 FX3 Send Level		fill	cf_off	ea_snd	ea_snd_fx3
+Map	Ch 3: Record		Channel 3 FX3 Send On			cf_off	ea_snd	ea_snd_fx3
+Map	Ch 3: Encoder		Channel 3 FX4 Send Level		fill	cf_off	ea_snd	ea_snd_fx4
+Map	Ch 3: Record		Channel 3 FX4 Send On			cf_off	ea_snd	ea_snd_fx4
+Map	Ch 3: Encoder		Channel 3 FX5 Send Level		fill	cf_off	ea_snd	ea_snd_fx5
+Map	Ch 3: Record		Channel 3 FX5 Send On			cf_off	ea_snd	ea_snd_fx5
+Map	Ch 3: Encoder		Channel 3 FX6 Send Level		fill	cf_off	ea_snd	ea_snd_fx6
+Map	Ch 3: Record		Channel 3 FX6 Send On			cf_off	ea_snd	ea_snd_fx6
+Map	Ch 3: Encoder		Channel 3 FX7 Send Level		fill	cf_off	ea_snd	ea_snd_fx7
+Map	Ch 3: Record		Channel 3 FX7 Send On			cf_off	ea_snd	ea_snd_fx7
+Map	Ch 3: Encoder		Channel 3 FX8 Send Level		fill	cf_off	ea_snd	ea_snd_fx8
+Map	Ch 3: Record		Channel 3 FX8 Send On			cf_off	ea_snd	ea_snd_fx8
+
+Map	Ch 3: Encoder		Channel 3 Pan		rms_pan	cf_off	ea_fdr	ea_fdr_m_off
+Map	Ch 3: Encoder		Channel 3 Width		fill_spread	cf_off	ea_fdr	ea_fdr_m_m1
+
+
+Map	Ch 4: Scribble Header		Channel 4 Channel Name		rms	cf_off
+Map	Ch 4: Scribble Color		"header_suffix"			cf_off
+Map	Ch 4: Level Indicator		Channel 4 VU Meter			cf_off
+Map	Ch 4: Fader		Channel 4 Level			cf_off
+Map	Ch 4: Solo		Channel 4 Solo			cf_off
+Map	Ch 4: Mute		Channel 4 Mute			cf_off
+
+Map	Ch 4: Encoder		Channel 4 Input Gain		bip	cf_off	ea_inp
+Map	Ch 4: Record		Channel 4 Invert Phase			cf_off	ea_inp
+
+Map	Ch 4: Encoder		Channel 4 C Threshold		fill	cf_off	ea_dyn	ea_dyn_cmp
+Map	Ch 4: Record		Channel 4 Comp On			cf_off	ea_dyn	ea_dyn_cmp
+Map	Ch 4: Encoder		Channel 4 G Threshold		fill	cf_off	ea_dyn	ea_dyn_gat
+Map	Ch 4: Record		Channel 4 Gate On			cf_off	ea_dyn	ea_dyn_gat
+
+Map	Ch 4: Encoder		Channel 4 LPF Frequency		fill	cf_off	ea_eq	ea_eq_lpf
+Map	Ch 4: Record		Channel 4 LPF On			cf_off	ea_eq	ea_eq_lpf
+Map	Ch 4: Encoder		Channel 4 HPF Frequency		fill_mir_rev	cf_off	ea_eq	ea_eq_hpf
+Map	Ch 4: Record		Channel 4 HPF On			cf_off	ea_eq	ea_eq_hpf
+
+Map	Ch 4: Record		Channel 4 Bypass Insert FX			cf_off	ea_ins
+
+Map	Ch 4: Encoder		Channel 4 FX1 Send Level		fill	cf_off	ea_snd	ea_snd_fx1
+Map	Ch 4: Record		Channel 4 FX1 Send On			cf_off	ea_snd	ea_snd_fx1
+Map	Ch 4: Encoder		Channel 4 FX2 Send Level		fill	cf_off	ea_snd	ea_snd_fx2
+Map	Ch 4: Record		Channel 4 FX2 Send On			cf_off	ea_snd	ea_snd_fx2
+Map	Ch 4: Encoder		Channel 4 FX3 Send Level		fill	cf_off	ea_snd	ea_snd_fx3
+Map	Ch 4: Record		Channel 4 FX3 Send On			cf_off	ea_snd	ea_snd_fx3
+Map	Ch 4: Encoder		Channel 4 FX4 Send Level		fill	cf_off	ea_snd	ea_snd_fx4
+Map	Ch 4: Record		Channel 4 FX4 Send On			cf_off	ea_snd	ea_snd_fx4
+Map	Ch 4: Encoder		Channel 4 FX5 Send Level		fill	cf_off	ea_snd	ea_snd_fx5
+Map	Ch 4: Record		Channel 4 FX5 Send On			cf_off	ea_snd	ea_snd_fx5
+Map	Ch 4: Encoder		Channel 4 FX6 Send Level		fill	cf_off	ea_snd	ea_snd_fx6
+Map	Ch 4: Record		Channel 4 FX6 Send On			cf_off	ea_snd	ea_snd_fx6
+Map	Ch 4: Encoder		Channel 4 FX7 Send Level		fill	cf_off	ea_snd	ea_snd_fx7
+Map	Ch 4: Record		Channel 4 FX7 Send On			cf_off	ea_snd	ea_snd_fx7
+Map	Ch 4: Encoder		Channel 4 FX8 Send Level		fill	cf_off	ea_snd	ea_snd_fx8
+Map	Ch 4: Record		Channel 4 FX8 Send On			cf_off	ea_snd	ea_snd_fx8
+
+Map	Ch 4: Encoder		Channel 4 Pan		rms_pan	cf_off	ea_fdr	ea_fdr_m_off
+Map	Ch 4: Encoder		Channel 4 Width		fill_spread	cf_off	ea_fdr	ea_fdr_m_m1
+
+
+Map	Ch 5: Scribble Header		Channel 5 Channel Name		rms	cf_off
+Map	Ch 5: Scribble Color		"header_suffix"			cf_off
+Map	Ch 5: Level Indicator		Channel 5 VU Meter			cf_off
+Map	Ch 5: Fader		Channel 5 Level			cf_off
+Map	Ch 5: Solo		Channel 5 Solo			cf_off
+Map	Ch 5: Mute		Channel 5 Mute			cf_off
+
+Map	Ch 5: Encoder		Channel 5 Input Gain		bip	cf_off	ea_inp
+Map	Ch 5: Record		Channel 5 Invert Phase			cf_off	ea_inp
+
+Map	Ch 5: Encoder		Channel 5 C Threshold		fill	cf_off	ea_dyn	ea_dyn_cmp
+Map	Ch 5: Record		Channel 5 Comp On			cf_off	ea_dyn	ea_dyn_cmp
+Map	Ch 5: Encoder		Channel 5 G Threshold		fill	cf_off	ea_dyn	ea_dyn_gat
+Map	Ch 5: Record		Channel 5 Gate On			cf_off	ea_dyn	ea_dyn_gat
+
+Map	Ch 5: Encoder		Channel 5 LPF Frequency		fill	cf_off	ea_eq	ea_eq_lpf
+Map	Ch 5: Record		Channel 5 LPF On			cf_off	ea_eq	ea_eq_lpf
+Map	Ch 5: Encoder		Channel 5 HPF Frequency		fill_mir_rev	cf_off	ea_eq	ea_eq_hpf
+Map	Ch 5: Record		Channel 5 HPF On			cf_off	ea_eq	ea_eq_hpf
+
+Map	Ch 5: Record		Channel 5 Bypass Insert FX			cf_off	ea_ins
+
+Map	Ch 5: Encoder		Channel 5 FX1 Send Level		fill	cf_off	ea_snd	ea_snd_fx1
+Map	Ch 5: Record		Channel 5 FX1 Send On			cf_off	ea_snd	ea_snd_fx1
+Map	Ch 5: Encoder		Channel 5 FX2 Send Level		fill	cf_off	ea_snd	ea_snd_fx2
+Map	Ch 5: Record		Channel 5 FX2 Send On			cf_off	ea_snd	ea_snd_fx2
+Map	Ch 5: Encoder		Channel 5 FX3 Send Level		fill	cf_off	ea_snd	ea_snd_fx3
+Map	Ch 5: Record		Channel 5 FX3 Send On			cf_off	ea_snd	ea_snd_fx3
+Map	Ch 5: Encoder		Channel 5 FX4 Send Level		fill	cf_off	ea_snd	ea_snd_fx4
+Map	Ch 5: Record		Channel 5 FX4 Send On			cf_off	ea_snd	ea_snd_fx4
+Map	Ch 5: Encoder		Channel 5 FX5 Send Level		fill	cf_off	ea_snd	ea_snd_fx5
+Map	Ch 5: Record		Channel 5 FX5 Send On			cf_off	ea_snd	ea_snd_fx5
+Map	Ch 5: Encoder		Channel 5 FX6 Send Level		fill	cf_off	ea_snd	ea_snd_fx6
+Map	Ch 5: Record		Channel 5 FX6 Send On			cf_off	ea_snd	ea_snd_fx6
+Map	Ch 5: Encoder		Channel 5 FX7 Send Level		fill	cf_off	ea_snd	ea_snd_fx7
+Map	Ch 5: Record		Channel 5 FX7 Send On			cf_off	ea_snd	ea_snd_fx7
+Map	Ch 5: Encoder		Channel 5 FX8 Send Level		fill	cf_off	ea_snd	ea_snd_fx8
+Map	Ch 5: Record		Channel 5 FX8 Send On			cf_off	ea_snd	ea_snd_fx8
+
+Map	Ch 5: Encoder		Channel 5 Pan		rms_pan	cf_off	ea_fdr	ea_fdr_m_off
+Map	Ch 5: Encoder		Channel 5 Width		fill_spread	cf_off	ea_fdr	ea_fdr_m_m1
+
+
+Map	Ch 6: Scribble Header		Channel 6 Channel Name		rms	cf_off
+Map	Ch 6: Scribble Color		"header_suffix"			cf_off
+Map	Ch 6: Level Indicator		Channel 6 VU Meter			cf_off
+Map	Ch 6: Fader		Channel 6 Level			cf_off
+Map	Ch 6: Solo		Channel 6 Solo			cf_off
+Map	Ch 6: Mute		Channel 6 Mute			cf_off
+
+Map	Ch 6: Encoder		Channel 6 Input Gain		bip	cf_off	ea_inp
+Map	Ch 6: Record		Channel 6 Invert Phase			cf_off	ea_inp
+
+Map	Ch 6: Encoder		Channel 6 C Threshold		fill	cf_off	ea_dyn	ea_dyn_cmp
+Map	Ch 6: Record		Channel 6 Comp On			cf_off	ea_dyn	ea_dyn_cmp
+Map	Ch 6: Encoder		Channel 6 G Threshold		fill	cf_off	ea_dyn	ea_dyn_gat
+Map	Ch 6: Record		Channel 6 Gate On			cf_off	ea_dyn	ea_dyn_gat
+
+Map	Ch 6: Encoder		Channel 6 LPF Frequency		fill	cf_off	ea_eq	ea_eq_lpf
+Map	Ch 6: Record		Channel 6 LPF On			cf_off	ea_eq	ea_eq_lpf
+Map	Ch 6: Encoder		Channel 6 HPF Frequency		fill_mir_rev	cf_off	ea_eq	ea_eq_hpf
+Map	Ch 6: Record		Channel 6 HPF On			cf_off	ea_eq	ea_eq_hpf
+
+Map	Ch 6: Record		Channel 6 Bypass Insert FX			cf_off	ea_ins
+
+Map	Ch 6: Encoder		Channel 6 FX1 Send Level		fill	cf_off	ea_snd	ea_snd_fx1
+Map	Ch 6: Record		Channel 6 FX1 Send On			cf_off	ea_snd	ea_snd_fx1
+Map	Ch 6: Encoder		Channel 6 FX2 Send Level		fill	cf_off	ea_snd	ea_snd_fx2
+Map	Ch 6: Record		Channel 6 FX2 Send On			cf_off	ea_snd	ea_snd_fx2
+Map	Ch 6: Encoder		Channel 6 FX3 Send Level		fill	cf_off	ea_snd	ea_snd_fx3
+Map	Ch 6: Record		Channel 6 FX3 Send On			cf_off	ea_snd	ea_snd_fx3
+Map	Ch 6: Encoder		Channel 6 FX4 Send Level		fill	cf_off	ea_snd	ea_snd_fx4
+Map	Ch 6: Record		Channel 6 FX4 Send On			cf_off	ea_snd	ea_snd_fx4
+Map	Ch 6: Encoder		Channel 6 FX5 Send Level		fill	cf_off	ea_snd	ea_snd_fx5
+Map	Ch 6: Record		Channel 6 FX5 Send On			cf_off	ea_snd	ea_snd_fx5
+Map	Ch 6: Encoder		Channel 6 FX6 Send Level		fill	cf_off	ea_snd	ea_snd_fx6
+Map	Ch 6: Record		Channel 6 FX6 Send On			cf_off	ea_snd	ea_snd_fx6
+Map	Ch 6: Encoder		Channel 6 FX7 Send Level		fill	cf_off	ea_snd	ea_snd_fx7
+Map	Ch 6: Record		Channel 6 FX7 Send On			cf_off	ea_snd	ea_snd_fx7
+Map	Ch 6: Encoder		Channel 6 FX8 Send Level		fill	cf_off	ea_snd	ea_snd_fx8
+Map	Ch 6: Record		Channel 6 FX8 Send On			cf_off	ea_snd	ea_snd_fx8
+
+Map	Ch 6: Encoder		Channel 6 Pan		rms_pan	cf_off	ea_fdr	ea_fdr_m_off
+Map	Ch 6: Encoder		Channel 6 Width		fill_spread	cf_off	ea_fdr	ea_fdr_m_m1
+
+
+Map	Ch 7: Scribble Header		Channel 7 Channel Name		rms	cf_off
+Map	Ch 7: Scribble Color		"header_suffix"			cf_off
+Map	Ch 7: Level Indicator		Channel 7 VU Meter			cf_off
+Map	Ch 7: Fader		Channel 7 Level			cf_off
+Map	Ch 7: Solo		Channel 7 Solo			cf_off
+Map	Ch 7: Mute		Channel 7 Mute			cf_off
+
+Map	Ch 7: Encoder		Channel 7 Input Gain		bip	cf_off	ea_inp
+Map	Ch 7: Record		Channel 7 Invert Phase			cf_off	ea_inp
+
+Map	Ch 7: Encoder		Channel 7 C Threshold		fill	cf_off	ea_dyn	ea_dyn_cmp
+Map	Ch 7: Record		Channel 7 Comp On			cf_off	ea_dyn	ea_dyn_cmp
+Map	Ch 7: Encoder		Channel 7 G Threshold		fill	cf_off	ea_dyn	ea_dyn_gat
+Map	Ch 7: Record		Channel 7 Gate On			cf_off	ea_dyn	ea_dyn_gat
+
+Map	Ch 7: Encoder		Channel 7 LPF Frequency		fill	cf_off	ea_eq	ea_eq_lpf
+Map	Ch 7: Record		Channel 7 LPF On			cf_off	ea_eq	ea_eq_lpf
+Map	Ch 7: Encoder		Channel 7 HPF Frequency		fill_mir_rev	cf_off	ea_eq	ea_eq_hpf
+Map	Ch 7: Record		Channel 7 HPF On			cf_off	ea_eq	ea_eq_hpf
+
+Map	Ch 7: Record		Channel 7 Bypass Insert FX			cf_off	ea_ins
+
+Map	Ch 7: Encoder		Channel 7 FX1 Send Level		fill	cf_off	ea_snd	ea_snd_fx1
+Map	Ch 7: Record		Channel 7 FX1 Send On			cf_off	ea_snd	ea_snd_fx1
+Map	Ch 7: Encoder		Channel 7 FX2 Send Level		fill	cf_off	ea_snd	ea_snd_fx2
+Map	Ch 7: Record		Channel 7 FX2 Send On			cf_off	ea_snd	ea_snd_fx2
+Map	Ch 7: Encoder		Channel 7 FX3 Send Level		fill	cf_off	ea_snd	ea_snd_fx3
+Map	Ch 7: Record		Channel 7 FX3 Send On			cf_off	ea_snd	ea_snd_fx3
+Map	Ch 7: Encoder		Channel 7 FX4 Send Level		fill	cf_off	ea_snd	ea_snd_fx4
+Map	Ch 7: Record		Channel 7 FX4 Send On			cf_off	ea_snd	ea_snd_fx4
+Map	Ch 7: Encoder		Channel 7 FX5 Send Level		fill	cf_off	ea_snd	ea_snd_fx5
+Map	Ch 7: Record		Channel 7 FX5 Send On			cf_off	ea_snd	ea_snd_fx5
+Map	Ch 7: Encoder		Channel 7 FX6 Send Level		fill	cf_off	ea_snd	ea_snd_fx6
+Map	Ch 7: Record		Channel 7 FX6 Send On			cf_off	ea_snd	ea_snd_fx6
+Map	Ch 7: Encoder		Channel 7 FX7 Send Level		fill	cf_off	ea_snd	ea_snd_fx7
+Map	Ch 7: Record		Channel 7 FX7 Send On			cf_off	ea_snd	ea_snd_fx7
+Map	Ch 7: Encoder		Channel 7 FX8 Send Level		fill	cf_off	ea_snd	ea_snd_fx8
+Map	Ch 7: Record		Channel 7 FX8 Send On			cf_off	ea_snd	ea_snd_fx8
+
+Map	Ch 7: Encoder		Channel 7 Pan		rms_pan	cf_off	ea_fdr	ea_fdr_m_off
+Map	Ch 7: Encoder		Channel 7 Width		fill_spread	cf_off	ea_fdr	ea_fdr_m_m1
+
+
+Map	Ch 8: Scribble Header		Channel 8 Channel Name		rms	cf_off
+Map	Ch 8: Scribble Color		"header_suffix"			cf_off
+Map	Ch 8: Level Indicator		Channel 8 VU Meter			cf_off
+Map	Ch 8: Fader		Channel 8 Level			cf_off
+Map	Ch 8: Solo		Channel 8 Solo			cf_off
+Map	Ch 8: Mute		Channel 8 Mute			cf_off
+
+Map	Ch 8: Encoder		Channel 8 Input Gain		bip	cf_off	ea_inp
+Map	Ch 8: Record		Channel 8 Invert Phase			cf_off	ea_inp
+
+Map	Ch 8: Encoder		Channel 8 C Threshold		fill	cf_off	ea_dyn	ea_dyn_cmp
+Map	Ch 8: Record		Channel 8 Comp On			cf_off	ea_dyn	ea_dyn_cmp
+Map	Ch 8: Encoder		Channel 8 G Threshold		fill	cf_off	ea_dyn	ea_dyn_gat
+Map	Ch 8: Record		Channel 8 Gate On			cf_off	ea_dyn	ea_dyn_gat
+
+Map	Ch 8: Encoder		Channel 8 LPF Frequency		fill	cf_off	ea_eq	ea_eq_lpf
+Map	Ch 8: Record		Channel 8 LPF On			cf_off	ea_eq	ea_eq_lpf
+Map	Ch 8: Encoder		Channel 8 HPF Frequency		fill_mir_rev	cf_off	ea_eq	ea_eq_hpf
+Map	Ch 8: Record		Channel 8 HPF On			cf_off	ea_eq	ea_eq_hpf
+
+Map	Ch 8: Record		Channel 8 Bypass Insert FX			cf_off	ea_ins
+
+Map	Ch 8: Encoder		Channel 8 FX1 Send Level		fill	cf_off	ea_snd	ea_snd_fx1
+Map	Ch 8: Record		Channel 8 FX1 Send On			cf_off	ea_snd	ea_snd_fx1
+Map	Ch 8: Encoder		Channel 8 FX2 Send Level		fill	cf_off	ea_snd	ea_snd_fx2
+Map	Ch 8: Record		Channel 8 FX2 Send On			cf_off	ea_snd	ea_snd_fx2
+Map	Ch 8: Encoder		Channel 8 FX3 Send Level		fill	cf_off	ea_snd	ea_snd_fx3
+Map	Ch 8: Record		Channel 8 FX3 Send On			cf_off	ea_snd	ea_snd_fx3
+Map	Ch 8: Encoder		Channel 8 FX4 Send Level		fill	cf_off	ea_snd	ea_snd_fx4
+Map	Ch 8: Record		Channel 8 FX4 Send On			cf_off	ea_snd	ea_snd_fx4
+Map	Ch 8: Encoder		Channel 8 FX5 Send Level		fill	cf_off	ea_snd	ea_snd_fx5
+Map	Ch 8: Record		Channel 8 FX5 Send On			cf_off	ea_snd	ea_snd_fx5
+Map	Ch 8: Encoder		Channel 8 FX6 Send Level		fill	cf_off	ea_snd	ea_snd_fx6
+Map	Ch 8: Record		Channel 8 FX6 Send On			cf_off	ea_snd	ea_snd_fx6
+Map	Ch 8: Encoder		Channel 8 FX7 Send Level		fill	cf_off	ea_snd	ea_snd_fx7
+Map	Ch 8: Record		Channel 8 FX7 Send On			cf_off	ea_snd	ea_snd_fx7
+Map	Ch 8: Encoder		Channel 8 FX8 Send Level		fill	cf_off	ea_snd	ea_snd_fx8
+Map	Ch 8: Record		Channel 8 FX8 Send On			cf_off	ea_snd	ea_snd_fx8
+
+Map	Ch 8: Encoder		Channel 8 Pan		rms_pan	cf_off	ea_fdr	ea_fdr_m_off
+Map	Ch 8: Encoder		Channel 8 Width		fill_spread	cf_off	ea_fdr	ea_fdr_m_m1
+
+
+Map	Func: F1		ea_dyn=ea_dyn_cmp		sf	cf_c1	ea_dyn
+Map	Func: F2		ea_dyn=ea_dyn_gat		sf	cf_c1	ea_dyn
+Map	Mod: Shift		ea_eq_m=ea_eq_m_m1		s_hold	cf_c1	ea_eq	ea_eq_m_off
+Map	Mod: Shift		ea_eq_m=ea_eq_m_off		s_hold	cf_c1	ea_eq	ea_eq_m_m1
+Map	Func: F1		ea_fx=ea_fx_fx5_8		sf	cf_c1	ea_snd
+Map	Func: F2		ea_fx=ea_fx_fx1_4		sf	cf_c1	ea_snd
+
+Map	Ch 1: Scribble Header		Channel 1 Channel Name		rms	cf_c1
+Map	Ch 1: Scribble Color		"header_suffix"			cf_c1
+Map	Ch 2: Scribble Color		"mimic_1"			cf_c1
+Map	Ch 3: Scribble Color		"mimic_1"			cf_c1
+Map	Ch 4: Scribble Color		"mimic_1"			cf_c1
+Map	Ch 5: Scribble Color		"mimic_1"			cf_c1
+Map	Ch 6: Scribble Color		"mimic_1"			cf_c1
+Map	Ch 7: Scribble Color		"mimic_1"			cf_c1
+Map	Ch 8: Scribble Color		"mimic_1"			cf_c1
+Map	Ch 1: Encoder		Channel 1 Pan		rms_pan	cf_c1
+Map	Ch 1: Level Indicator		Channel 1 VU Meter			cf_c1
+Map	Ch 1: Fader		Channel 1 Level			cf_c1
+Map	Ch 1: Solo		Channel 1 Solo			cf_c1
+Map	Ch 1: Mute		Channel 1 Mute			cf_c1
+
+Map	Ch 3: Encoder		Channel 1 Input Gain		bip	cf_c1	ea_inp
+Map	Ch 3: Record		Channel 1 Invert Phase			cf_c1	ea_inp
+Map	Ch 4: Record		Channel 1 Insert Pre			cf_c1	ea_inp
+Map	Ch 5: Record		Channel 1 Dyn Post EQ			cf_c1	ea_inp
+
+Map	Ch 3: Encoder Led Left		Channel 1 Gate Gain Reduction		rms_gatcmb	cf_c1	ea_dyn
+Map	Ch 3: Encoder Led Right		Channel 1 Comp Gain Reduction		rms_gatcmb	cf_c1	ea_dyn
+Map	Ch 3: Record		Channel 1 Key			cf_c1	ea_dyn
+Map	Ch 5: Record		Channel 1 Comp On			cf_c1	ea_dyn	ea_dyn_cmp
+Map	Ch 6: Record		Channel 1 C Peak			cf_c1	ea_dyn	ea_dyn_cmp
+Map	Ch 7: Record		Channel 1 C Fast Atk			cf_c1	ea_dyn	ea_dyn_cmp
+Map	Ch 5: Encoder		Channel 1 C Ratio		fill	cf_c1	ea_dyn	ea_dyn_cmp
+Map	Ch 6: Encoder		Channel 1 C Threshold		fill	cf_c1	ea_dyn	ea_dyn_cmp
+Map	Ch 7: Encoder		Channel 1 C Release		fill	cf_c1	ea_dyn	ea_dyn_cmp
+Map	Ch 5: Record		Channel 1 Gate On			cf_c1	ea_dyn
+Map	Ch 6: Record		Channel 1 Expander			cf_c1	ea_dyn
+Map	Ch 7: Record		Channel 1 G Fast Atk			cf_c1	ea_dyn
+Map	Ch 5: Encoder		Channel 1 G Range		fill	cf_c1	ea_dyn	ea_dyn_gat
+Map	Ch 6: Encoder		Channel 1 G Threshold		fill	cf_c1	ea_dyn	ea_dyn_gat
+Map	Ch 7: Encoder		Channel 1 G Release		fill	cf_c1	ea_dyn	ea_dyn_gat
+Map	Ch 8: Encoder		Channel 1 G Hold		fill	cf_c1	ea_dyn	ea_dyn_gat
+
+Map	Ch 3: Record		Channel 1 HPF On			cf_c1	ea_eq
+Map	Ch 4: Record		Channel 1 LF Bell			cf_c1	ea_eq
+Map	Ch 5: Record		Channel 1 EQ On			cf_c1	ea_eq
+Map	Ch 6: Record		Channel 1 EQ E Mode			cf_c1	ea_eq
+Map	Ch 7: Record		Channel 1 HF Bell			cf_c1	ea_eq
+Map	Ch 8: Record		Channel 1 LPF On			cf_c1	ea_eq
+Map	Ch 3: Encoder		Channel 1 HPF Frequency		fill_mir_rev	cf_c1	ea_eq
+Map	Ch 4: Encoder		Channel 1 LF Frequency		dot_blur	cf_c1	ea_eq
+Map	Ch 5: Encoder		Channel 1 LMF Frequency		dot_blur	cf_c1	ea_eq
+Map	Ch 6: Encoder		Channel 1 HMF Frequency		dot_blur	cf_c1	ea_eq
+Map	Ch 7: Encoder		Channel 1 HF Frequency		dot_blur	cf_c1	ea_eq
+Map	Ch 8: Encoder		Channel 1 LPF Frequency		fill	cf_c1	ea_eq
+Map	Ch 5: Encoder		Channel 1 LMF Q		fill_spread_rev	cf_c1	ea_eq	ea_eq_m_m1
+Map	Ch 6: Encoder		Channel 1 HMF Q		fill_spread_rev	cf_c1	ea_eq	ea_eq_m_m1
+Map	Ch 4: Fader		Channel 1 LF Gain			cf_c1	ea_eq
+Map	Ch 5: Fader		Channel 1 LMF Gain			cf_c1	ea_eq
+Map	Ch 6: Fader		Channel 1 HMF Gain			cf_c1	ea_eq
+Map	Ch 7: Fader		Channel 1 HF Gain			cf_c1	ea_eq
+
+Map	Ch 3: Record		Channel 1 Bypass Insert FX			cf_c1	ea_ins
+
+Map	Ch 4: Encoder		FX1 Send Level		fill	cf_c1	ea_snd	ea_fx_fx1_4
+Map	Ch 5: Encoder		FX2 Send Level		fill	cf_c1	ea_snd	ea_fx_fx1_4
+Map	Ch 6: Encoder		FX3 Send Level		fill	cf_c1	ea_snd	ea_fx_fx1_4
+Map	Ch 7: Encoder		FX4 Send Level		fill	cf_c1	ea_snd	ea_fx_fx1_4
+Map	Ch 4: Encoder		FX5 Send Level		fill	cf_c1	ea_snd	ea_fx_fx5_8
+Map	Ch 5: Encoder		FX6 Send Level		fill	cf_c1	ea_snd	ea_fx_fx5_8
+Map	Ch 6: Encoder		FX7 Send Level		fill	cf_c1	ea_snd	ea_fx_fx5_8
+Map	Ch 7: Encoder		FX8 Send Level		fill	cf_c1	ea_snd	ea_fx_fx5_8
+
+Map	Ch 3: Encoder		Channel 1 Width		fill_spread	cf_c1	ea_fdr
+
+
+Map	Func: F1		ea_dyn=ea_dyn_cmp		sf	cf_c2	ea_dyn
+Map	Func: F2		ea_dyn=ea_dyn_gat		sf	cf_c2	ea_dyn
+Map	Mod: Shift		ea_eq_m=ea_eq_m_m1		s_hold	cf_c2	ea_eq	ea_eq_m_off
+Map	Mod: Shift		ea_eq_m=ea_eq_m_off		s_hold	cf_c2	ea_eq	ea_eq_m_m1
+Map	Func: F1		ea_fx=ea_fx_fx5_8		sf	cf_c2	ea_snd
+Map	Func: F2		ea_fx=ea_fx_fx1_4		sf	cf_c2	ea_snd
+
+Map	Ch 1: Scribble Header		Channel 2 Channel Name		rms	cf_c2
+Map	Ch 1: Scribble Color		"header_suffix"			cf_c2
+Map	Ch 2: Scribble Color		"mimic_1"			cf_c2
+Map	Ch 3: Scribble Color		"mimic_1"			cf_c2
+Map	Ch 4: Scribble Color		"mimic_1"			cf_c2
+Map	Ch 5: Scribble Color		"mimic_1"			cf_c2
+Map	Ch 6: Scribble Color		"mimic_1"			cf_c2
+Map	Ch 7: Scribble Color		"mimic_1"			cf_c2
+Map	Ch 8: Scribble Color		"mimic_1"			cf_c2
+Map	Ch 1: Encoder		Channel 2 Pan		rms_pan	cf_c2
+Map	Ch 1: Level Indicator		Channel 2 VU Meter			cf_c2
+Map	Ch 1: Fader		Channel 2 Level			cf_c2
+Map	Ch 1: Solo		Channel 2 Solo			cf_c2
+Map	Ch 1: Mute		Channel 2 Mute			cf_c2
+
+Map	Ch 3: Encoder		Channel 2 Input Gain		bip	cf_c2	ea_inp
+Map	Ch 3: Record		Channel 2 Invert Phase			cf_c2	ea_inp
+Map	Ch 4: Record		Channel 2 Insert Pre			cf_c2	ea_inp
+Map	Ch 5: Record		Channel 2 Dyn Post EQ			cf_c2	ea_inp
+
+Map	Ch 3: Encoder Led Left		Channel 2 Gate Gain Reduction		rms_gatcmb	cf_c2	ea_dyn
+Map	Ch 3: Encoder Led Right		Channel 2 Comp Gain Reduction		rms_gatcmb	cf_c2	ea_dyn
+Map	Ch 3: Record		Channel 2 Key			cf_c2	ea_dyn
+Map	Ch 5: Record		Channel 2 Comp On			cf_c2	ea_dyn	ea_dyn_cmp
+Map	Ch 6: Record		Channel 2 C Peak			cf_c2	ea_dyn	ea_dyn_cmp
+Map	Ch 7: Record		Channel 2 C Fast Atk			cf_c2	ea_dyn	ea_dyn_cmp
+Map	Ch 5: Encoder		Channel 2 C Ratio		fill	cf_c2	ea_dyn	ea_dyn_cmp
+Map	Ch 6: Encoder		Channel 2 C Threshold		fill	cf_c2	ea_dyn	ea_dyn_cmp
+Map	Ch 7: Encoder		Channel 2 C Release		fill	cf_c2	ea_dyn	ea_dyn_cmp
+Map	Ch 5: Record		Channel 2 Gate On			cf_c2	ea_dyn
+Map	Ch 6: Record		Channel 2 Expander			cf_c2	ea_dyn
+Map	Ch 7: Record		Channel 2 G Fast Atk			cf_c2	ea_dyn
+Map	Ch 5: Encoder		Channel 2 G Range		fill	cf_c2	ea_dyn	ea_dyn_gat
+Map	Ch 6: Encoder		Channel 2 G Threshold		fill	cf_c2	ea_dyn	ea_dyn_gat
+Map	Ch 7: Encoder		Channel 2 G Release		fill	cf_c2	ea_dyn	ea_dyn_gat
+Map	Ch 8: Encoder		Channel 2 G Hold		fill	cf_c2	ea_dyn	ea_dyn_gat
+
+Map	Ch 3: Record		Channel 2 HPF On			cf_c2	ea_eq
+Map	Ch 4: Record		Channel 2 LF Bell			cf_c2	ea_eq
+Map	Ch 5: Record		Channel 2 EQ On			cf_c2	ea_eq
+Map	Ch 6: Record		Channel 2 EQ E Mode			cf_c2	ea_eq
+Map	Ch 7: Record		Channel 2 HF Bell			cf_c2	ea_eq
+Map	Ch 8: Record		Channel 2 LPF On			cf_c2	ea_eq
+Map	Ch 3: Encoder		Channel 2 HPF Frequency		fill_mir_rev	cf_c2	ea_eq
+Map	Ch 4: Encoder		Channel 2 LF Frequency		dot_blur	cf_c2	ea_eq
+Map	Ch 5: Encoder		Channel 2 LMF Frequency		dot_blur	cf_c2	ea_eq
+Map	Ch 6: Encoder		Channel 2 HMF Frequency		dot_blur	cf_c2	ea_eq
+Map	Ch 7: Encoder		Channel 2 HF Frequency		dot_blur	cf_c2	ea_eq
+Map	Ch 8: Encoder		Channel 2 LPF Frequency		fill	cf_c2	ea_eq
+Map	Ch 5: Encoder		Channel 2 LMF Q		fill_spread_rev	cf_c2	ea_eq	ea_eq_m_m1
+Map	Ch 6: Encoder		Channel 2 HMF Q		fill_spread_rev	cf_c2	ea_eq	ea_eq_m_m1
+Map	Ch 4: Fader		Channel 2 LF Gain			cf_c2	ea_eq
+Map	Ch 5: Fader		Channel 2 LMF Gain			cf_c2	ea_eq
+Map	Ch 6: Fader		Channel 2 HMF Gain			cf_c2	ea_eq
+Map	Ch 7: Fader		Channel 2 HF Gain			cf_c2	ea_eq
+
+Map	Ch 3: Record		Channel 2 Bypass Insert FX			cf_c2	ea_ins
+
+Map	Ch 4: Encoder		FX1 Send Level		fill	cf_c2	ea_snd	ea_fx_fx1_4
+Map	Ch 5: Encoder		FX2 Send Level		fill	cf_c2	ea_snd	ea_fx_fx1_4
+Map	Ch 6: Encoder		FX3 Send Level		fill	cf_c2	ea_snd	ea_fx_fx1_4
+Map	Ch 7: Encoder		FX4 Send Level		fill	cf_c2	ea_snd	ea_fx_fx1_4
+Map	Ch 4: Encoder		FX5 Send Level		fill	cf_c2	ea_snd	ea_fx_fx5_8
+Map	Ch 5: Encoder		FX6 Send Level		fill	cf_c2	ea_snd	ea_fx_fx5_8
+Map	Ch 6: Encoder		FX7 Send Level		fill	cf_c2	ea_snd	ea_fx_fx5_8
+Map	Ch 7: Encoder		FX8 Send Level		fill	cf_c2	ea_snd	ea_fx_fx5_8
+
+Map	Ch 3: Encoder		Channel 2 Width		fill_spread	cf_c2	ea_fdr
+
+
+Map	Func: F1		ea_dyn=ea_dyn_cmp		sf	cf_c3	ea_dyn
+Map	Func: F2		ea_dyn=ea_dyn_gat		sf	cf_c3	ea_dyn
+Map	Mod: Shift		ea_eq_m=ea_eq_m_m1		s_hold	cf_c3	ea_eq	ea_eq_m_off
+Map	Mod: Shift		ea_eq_m=ea_eq_m_off		s_hold	cf_c3	ea_eq	ea_eq_m_m1
+Map	Func: F1		ea_fx=ea_fx_fx5_8		sf	cf_c3	ea_snd
+Map	Func: F2		ea_fx=ea_fx_fx1_4		sf	cf_c3	ea_snd
+
+Map	Ch 1: Scribble Header		Channel 3 Channel Name		rms	cf_c3
+Map	Ch 1: Scribble Color		"header_suffix"			cf_c3
+Map	Ch 2: Scribble Color		"mimic_1"			cf_c3
+Map	Ch 3: Scribble Color		"mimic_1"			cf_c3
+Map	Ch 4: Scribble Color		"mimic_1"			cf_c3
+Map	Ch 5: Scribble Color		"mimic_1"			cf_c3
+Map	Ch 6: Scribble Color		"mimic_1"			cf_c3
+Map	Ch 7: Scribble Color		"mimic_1"			cf_c3
+Map	Ch 8: Scribble Color		"mimic_1"			cf_c3
+Map	Ch 1: Encoder		Channel 3 Pan		rms_pan	cf_c3
+Map	Ch 1: Level Indicator		Channel 3 VU Meter			cf_c3
+Map	Ch 1: Fader		Channel 3 Level			cf_c3
+Map	Ch 1: Solo		Channel 3 Solo			cf_c3
+Map	Ch 1: Mute		Channel 3 Mute			cf_c3
+
+Map	Ch 3: Encoder		Channel 3 Input Gain		bip	cf_c3	ea_inp
+Map	Ch 3: Record		Channel 3 Invert Phase			cf_c3	ea_inp
+Map	Ch 4: Record		Channel 3 Insert Pre			cf_c3	ea_inp
+Map	Ch 5: Record		Channel 3 Dyn Post EQ			cf_c3	ea_inp
+
+Map	Ch 3: Encoder Led Left		Channel 3 Gate Gain Reduction		rms_gatcmb	cf_c3	ea_dyn
+Map	Ch 3: Encoder Led Right		Channel 3 Comp Gain Reduction		rms_gatcmb	cf_c3	ea_dyn
+Map	Ch 3: Record		Channel 3 Key			cf_c3	ea_dyn
+Map	Ch 5: Record		Channel 3 Comp On			cf_c3	ea_dyn	ea_dyn_cmp
+Map	Ch 6: Record		Channel 3 C Peak			cf_c3	ea_dyn	ea_dyn_cmp
+Map	Ch 7: Record		Channel 3 C Fast Atk			cf_c3	ea_dyn	ea_dyn_cmp
+Map	Ch 5: Encoder		Channel 3 C Ratio		fill	cf_c3	ea_dyn	ea_dyn_cmp
+Map	Ch 6: Encoder		Channel 3 C Threshold		fill	cf_c3	ea_dyn	ea_dyn_cmp
+Map	Ch 7: Encoder		Channel 3 C Release		fill	cf_c3	ea_dyn	ea_dyn_cmp
+Map	Ch 5: Record		Channel 3 Gate On			cf_c3	ea_dyn
+Map	Ch 6: Record		Channel 3 Expander			cf_c3	ea_dyn
+Map	Ch 7: Record		Channel 3 G Fast Atk			cf_c3	ea_dyn
+Map	Ch 5: Encoder		Channel 3 G Range		fill	cf_c3	ea_dyn	ea_dyn_gat
+Map	Ch 6: Encoder		Channel 3 G Threshold		fill	cf_c3	ea_dyn	ea_dyn_gat
+Map	Ch 7: Encoder		Channel 3 G Release		fill	cf_c3	ea_dyn	ea_dyn_gat
+Map	Ch 8: Encoder		Channel 3 G Hold		fill	cf_c3	ea_dyn	ea_dyn_gat
+
+Map	Ch 3: Record		Channel 3 HPF On			cf_c3	ea_eq
+Map	Ch 4: Record		Channel 3 LF Bell			cf_c3	ea_eq
+Map	Ch 5: Record		Channel 3 EQ On			cf_c3	ea_eq
+Map	Ch 6: Record		Channel 3 EQ E Mode			cf_c3	ea_eq
+Map	Ch 7: Record		Channel 3 HF Bell			cf_c3	ea_eq
+Map	Ch 8: Record		Channel 3 LPF On			cf_c3	ea_eq
+Map	Ch 3: Encoder		Channel 3 HPF Frequency		fill_mir_rev	cf_c3	ea_eq
+Map	Ch 4: Encoder		Channel 3 LF Frequency		dot_blur	cf_c3	ea_eq
+Map	Ch 5: Encoder		Channel 3 LMF Frequency		dot_blur	cf_c3	ea_eq
+Map	Ch 6: Encoder		Channel 3 HMF Frequency		dot_blur	cf_c3	ea_eq
+Map	Ch 7: Encoder		Channel 3 HF Frequency		dot_blur	cf_c3	ea_eq
+Map	Ch 8: Encoder		Channel 3 LPF Frequency		fill	cf_c3	ea_eq
+Map	Ch 5: Encoder		Channel 3 LMF Q		fill_spread_rev	cf_c3	ea_eq	ea_eq_m_m1
+Map	Ch 6: Encoder		Channel 3 HMF Q		fill_spread_rev	cf_c3	ea_eq	ea_eq_m_m1
+Map	Ch 4: Fader		Channel 3 LF Gain			cf_c3	ea_eq
+Map	Ch 5: Fader		Channel 3 LMF Gain			cf_c3	ea_eq
+Map	Ch 6: Fader		Channel 3 HMF Gain			cf_c3	ea_eq
+Map	Ch 7: Fader		Channel 3 HF Gain			cf_c3	ea_eq
+
+Map	Ch 3: Record		Channel 3 Bypass Insert FX			cf_c3	ea_ins
+
+Map	Ch 4: Encoder		FX1 Send Level		fill	cf_c3	ea_snd	ea_fx_fx1_4
+Map	Ch 5: Encoder		FX2 Send Level		fill	cf_c3	ea_snd	ea_fx_fx1_4
+Map	Ch 6: Encoder		FX3 Send Level		fill	cf_c3	ea_snd	ea_fx_fx1_4
+Map	Ch 7: Encoder		FX4 Send Level		fill	cf_c3	ea_snd	ea_fx_fx1_4
+Map	Ch 4: Encoder		FX5 Send Level		fill	cf_c3	ea_snd	ea_fx_fx5_8
+Map	Ch 5: Encoder		FX6 Send Level		fill	cf_c3	ea_snd	ea_fx_fx5_8
+Map	Ch 6: Encoder		FX7 Send Level		fill	cf_c3	ea_snd	ea_fx_fx5_8
+Map	Ch 7: Encoder		FX8 Send Level		fill	cf_c3	ea_snd	ea_fx_fx5_8
+
+Map	Ch 3: Encoder		Channel 3 Width		fill_spread	cf_c3	ea_fdr
+
+
+Map	Func: F1		ea_dyn=ea_dyn_cmp		sf	cf_c4	ea_dyn
+Map	Func: F2		ea_dyn=ea_dyn_gat		sf	cf_c4	ea_dyn
+Map	Mod: Shift		ea_eq_m=ea_eq_m_m1		s_hold	cf_c4	ea_eq	ea_eq_m_off
+Map	Mod: Shift		ea_eq_m=ea_eq_m_off		s_hold	cf_c4	ea_eq	ea_eq_m_m1
+Map	Func: F1		ea_fx=ea_fx_fx5_8		sf	cf_c4	ea_snd
+Map	Func: F2		ea_fx=ea_fx_fx1_4		sf	cf_c4	ea_snd
+
+Map	Ch 1: Scribble Header		Channel 4 Channel Name		rms	cf_c4
+Map	Ch 1: Scribble Color		"header_suffix"			cf_c4
+Map	Ch 2: Scribble Color		"mimic_1"			cf_c4
+Map	Ch 3: Scribble Color		"mimic_1"			cf_c4
+Map	Ch 4: Scribble Color		"mimic_1"			cf_c4
+Map	Ch 5: Scribble Color		"mimic_1"			cf_c4
+Map	Ch 6: Scribble Color		"mimic_1"			cf_c4
+Map	Ch 7: Scribble Color		"mimic_1"			cf_c4
+Map	Ch 8: Scribble Color		"mimic_1"			cf_c4
+Map	Ch 1: Encoder		Channel 4 Pan		rms_pan	cf_c4
+Map	Ch 1: Level Indicator		Channel 4 VU Meter			cf_c4
+Map	Ch 1: Fader		Channel 4 Level			cf_c4
+Map	Ch 1: Solo		Channel 4 Solo			cf_c4
+Map	Ch 1: Mute		Channel 4 Mute			cf_c4
+
+Map	Ch 3: Encoder		Channel 4 Input Gain		bip	cf_c4	ea_inp
+Map	Ch 3: Record		Channel 4 Invert Phase			cf_c4	ea_inp
+Map	Ch 4: Record		Channel 4 Insert Pre			cf_c4	ea_inp
+Map	Ch 5: Record		Channel 4 Dyn Post EQ			cf_c4	ea_inp
+
+Map	Ch 3: Encoder Led Left		Channel 4 Gate Gain Reduction		rms_gatcmb	cf_c4	ea_dyn
+Map	Ch 3: Encoder Led Right		Channel 4 Comp Gain Reduction		rms_gatcmb	cf_c4	ea_dyn
+Map	Ch 3: Record		Channel 4 Key			cf_c4	ea_dyn
+Map	Ch 5: Record		Channel 4 Comp On			cf_c4	ea_dyn	ea_dyn_cmp
+Map	Ch 6: Record		Channel 4 C Peak			cf_c4	ea_dyn	ea_dyn_cmp
+Map	Ch 7: Record		Channel 4 C Fast Atk			cf_c4	ea_dyn	ea_dyn_cmp
+Map	Ch 5: Encoder		Channel 4 C Ratio		fill	cf_c4	ea_dyn	ea_dyn_cmp
+Map	Ch 6: Encoder		Channel 4 C Threshold		fill	cf_c4	ea_dyn	ea_dyn_cmp
+Map	Ch 7: Encoder		Channel 4 C Release		fill	cf_c4	ea_dyn	ea_dyn_cmp
+Map	Ch 5: Record		Channel 4 Gate On			cf_c4	ea_dyn
+Map	Ch 6: Record		Channel 4 Expander			cf_c4	ea_dyn
+Map	Ch 7: Record		Channel 4 G Fast Atk			cf_c4	ea_dyn
+Map	Ch 5: Encoder		Channel 4 G Range		fill	cf_c4	ea_dyn	ea_dyn_gat
+Map	Ch 6: Encoder		Channel 4 G Threshold		fill	cf_c4	ea_dyn	ea_dyn_gat
+Map	Ch 7: Encoder		Channel 4 G Release		fill	cf_c4	ea_dyn	ea_dyn_gat
+Map	Ch 8: Encoder		Channel 4 G Hold		fill	cf_c4	ea_dyn	ea_dyn_gat
+
+Map	Ch 3: Record		Channel 4 HPF On			cf_c4	ea_eq
+Map	Ch 4: Record		Channel 4 LF Bell			cf_c4	ea_eq
+Map	Ch 5: Record		Channel 4 EQ On			cf_c4	ea_eq
+Map	Ch 6: Record		Channel 4 EQ E Mode			cf_c4	ea_eq
+Map	Ch 7: Record		Channel 4 HF Bell			cf_c4	ea_eq
+Map	Ch 8: Record		Channel 4 LPF On			cf_c4	ea_eq
+Map	Ch 3: Encoder		Channel 4 HPF Frequency		fill_mir_rev	cf_c4	ea_eq
+Map	Ch 4: Encoder		Channel 4 LF Frequency		dot_blur	cf_c4	ea_eq
+Map	Ch 5: Encoder		Channel 4 LMF Frequency		dot_blur	cf_c4	ea_eq
+Map	Ch 6: Encoder		Channel 4 HMF Frequency		dot_blur	cf_c4	ea_eq
+Map	Ch 7: Encoder		Channel 4 HF Frequency		dot_blur	cf_c4	ea_eq
+Map	Ch 8: Encoder		Channel 4 LPF Frequency		fill	cf_c4	ea_eq
+Map	Ch 5: Encoder		Channel 4 LMF Q		fill_spread_rev	cf_c4	ea_eq	ea_eq_m_m1
+Map	Ch 6: Encoder		Channel 4 HMF Q		fill_spread_rev	cf_c4	ea_eq	ea_eq_m_m1
+Map	Ch 4: Fader		Channel 4 LF Gain			cf_c4	ea_eq
+Map	Ch 5: Fader		Channel 4 LMF Gain			cf_c4	ea_eq
+Map	Ch 6: Fader		Channel 4 HMF Gain			cf_c4	ea_eq
+Map	Ch 7: Fader		Channel 4 HF Gain			cf_c4	ea_eq
+
+Map	Ch 3: Record		Channel 4 Bypass Insert FX			cf_c4	ea_ins
+
+Map	Ch 4: Encoder		FX1 Send Level		fill	cf_c4	ea_snd	ea_fx_fx1_4
+Map	Ch 5: Encoder		FX2 Send Level		fill	cf_c4	ea_snd	ea_fx_fx1_4
+Map	Ch 6: Encoder		FX3 Send Level		fill	cf_c4	ea_snd	ea_fx_fx1_4
+Map	Ch 7: Encoder		FX4 Send Level		fill	cf_c4	ea_snd	ea_fx_fx1_4
+Map	Ch 4: Encoder		FX5 Send Level		fill	cf_c4	ea_snd	ea_fx_fx5_8
+Map	Ch 5: Encoder		FX6 Send Level		fill	cf_c4	ea_snd	ea_fx_fx5_8
+Map	Ch 6: Encoder		FX7 Send Level		fill	cf_c4	ea_snd	ea_fx_fx5_8
+Map	Ch 7: Encoder		FX8 Send Level		fill	cf_c4	ea_snd	ea_fx_fx5_8
+
+Map	Ch 3: Encoder		Channel 4 Width		fill_spread	cf_c4	ea_fdr
+
+
+Map	Func: F1		ea_dyn=ea_dyn_cmp		sf	cf_c5	ea_dyn
+Map	Func: F2		ea_dyn=ea_dyn_gat		sf	cf_c5	ea_dyn
+Map	Mod: Shift		ea_eq_m=ea_eq_m_m1		s_hold	cf_c5	ea_eq	ea_eq_m_off
+Map	Mod: Shift		ea_eq_m=ea_eq_m_off		s_hold	cf_c5	ea_eq	ea_eq_m_m1
+Map	Func: F1		ea_fx=ea_fx_fx5_8		sf	cf_c5	ea_snd
+Map	Func: F2		ea_fx=ea_fx_fx1_4		sf	cf_c5	ea_snd
+
+Map	Ch 1: Scribble Header		Channel 5 Channel Name		rms	cf_c5
+Map	Ch 1: Scribble Color		"header_suffix"			cf_c5
+Map	Ch 2: Scribble Color		"mimic_1"			cf_c5
+Map	Ch 3: Scribble Color		"mimic_1"			cf_c5
+Map	Ch 4: Scribble Color		"mimic_1"			cf_c5
+Map	Ch 5: Scribble Color		"mimic_1"			cf_c5
+Map	Ch 6: Scribble Color		"mimic_1"			cf_c5
+Map	Ch 7: Scribble Color		"mimic_1"			cf_c5
+Map	Ch 8: Scribble Color		"mimic_1"			cf_c5
+Map	Ch 1: Encoder		Channel 5 Pan		rms_pan	cf_c5
+Map	Ch 1: Level Indicator		Channel 5 VU Meter			cf_c5
+Map	Ch 1: Fader		Channel 5 Level			cf_c5
+Map	Ch 1: Solo		Channel 5 Solo			cf_c5
+Map	Ch 1: Mute		Channel 5 Mute			cf_c5
+
+Map	Ch 3: Encoder		Channel 5 Input Gain		bip	cf_c5	ea_inp
+Map	Ch 3: Record		Channel 5 Invert Phase			cf_c5	ea_inp
+Map	Ch 4: Record		Channel 5 Insert Pre			cf_c5	ea_inp
+Map	Ch 5: Record		Channel 5 Dyn Post EQ			cf_c5	ea_inp
+
+Map	Ch 3: Encoder Led Left		Channel 5 Gate Gain Reduction		rms_gatcmb	cf_c5	ea_dyn
+Map	Ch 3: Encoder Led Right		Channel 5 Comp Gain Reduction		rms_gatcmb	cf_c5	ea_dyn
+Map	Ch 3: Record		Channel 5 Key			cf_c5	ea_dyn
+Map	Ch 5: Record		Channel 5 Comp On			cf_c5	ea_dyn	ea_dyn_cmp
+Map	Ch 6: Record		Channel 5 C Peak			cf_c5	ea_dyn	ea_dyn_cmp
+Map	Ch 7: Record		Channel 5 C Fast Atk			cf_c5	ea_dyn	ea_dyn_cmp
+Map	Ch 5: Encoder		Channel 5 C Ratio		fill	cf_c5	ea_dyn	ea_dyn_cmp
+Map	Ch 6: Encoder		Channel 5 C Threshold		fill	cf_c5	ea_dyn	ea_dyn_cmp
+Map	Ch 7: Encoder		Channel 5 C Release		fill	cf_c5	ea_dyn	ea_dyn_cmp
+Map	Ch 5: Record		Channel 5 Gate On			cf_c5	ea_dyn
+Map	Ch 6: Record		Channel 5 Expander			cf_c5	ea_dyn
+Map	Ch 7: Record		Channel 5 G Fast Atk			cf_c5	ea_dyn
+Map	Ch 5: Encoder		Channel 5 G Range		fill	cf_c5	ea_dyn	ea_dyn_gat
+Map	Ch 6: Encoder		Channel 5 G Threshold		fill	cf_c5	ea_dyn	ea_dyn_gat
+Map	Ch 7: Encoder		Channel 5 G Release		fill	cf_c5	ea_dyn	ea_dyn_gat
+Map	Ch 8: Encoder		Channel 5 G Hold		fill	cf_c5	ea_dyn	ea_dyn_gat
+
+Map	Ch 3: Record		Channel 5 HPF On			cf_c5	ea_eq
+Map	Ch 4: Record		Channel 5 LF Bell			cf_c5	ea_eq
+Map	Ch 5: Record		Channel 5 EQ On			cf_c5	ea_eq
+Map	Ch 6: Record		Channel 5 EQ E Mode			cf_c5	ea_eq
+Map	Ch 7: Record		Channel 5 HF Bell			cf_c5	ea_eq
+Map	Ch 8: Record		Channel 5 LPF On			cf_c5	ea_eq
+Map	Ch 3: Encoder		Channel 5 HPF Frequency		fill_mir_rev	cf_c5	ea_eq
+Map	Ch 4: Encoder		Channel 5 LF Frequency		dot_blur	cf_c5	ea_eq
+Map	Ch 5: Encoder		Channel 5 LMF Frequency		dot_blur	cf_c5	ea_eq
+Map	Ch 6: Encoder		Channel 5 HMF Frequency		dot_blur	cf_c5	ea_eq
+Map	Ch 7: Encoder		Channel 5 HF Frequency		dot_blur	cf_c5	ea_eq
+Map	Ch 8: Encoder		Channel 5 LPF Frequency		fill	cf_c5	ea_eq
+Map	Ch 5: Encoder		Channel 5 LMF Q		fill_spread_rev	cf_c5	ea_eq	ea_eq_m_m1
+Map	Ch 6: Encoder		Channel 5 HMF Q		fill_spread_rev	cf_c5	ea_eq	ea_eq_m_m1
+Map	Ch 4: Fader		Channel 5 LF Gain			cf_c5	ea_eq
+Map	Ch 5: Fader		Channel 5 LMF Gain			cf_c5	ea_eq
+Map	Ch 6: Fader		Channel 5 HMF Gain			cf_c5	ea_eq
+Map	Ch 7: Fader		Channel 5 HF Gain			cf_c5	ea_eq
+
+Map	Ch 3: Record		Channel 5 Bypass Insert FX			cf_c5	ea_ins
+
+Map	Ch 4: Encoder		FX1 Send Level		fill	cf_c5	ea_snd	ea_fx_fx1_4
+Map	Ch 5: Encoder		FX2 Send Level		fill	cf_c5	ea_snd	ea_fx_fx1_4
+Map	Ch 6: Encoder		FX3 Send Level		fill	cf_c5	ea_snd	ea_fx_fx1_4
+Map	Ch 7: Encoder		FX4 Send Level		fill	cf_c5	ea_snd	ea_fx_fx1_4
+Map	Ch 4: Encoder		FX5 Send Level		fill	cf_c5	ea_snd	ea_fx_fx5_8
+Map	Ch 5: Encoder		FX6 Send Level		fill	cf_c5	ea_snd	ea_fx_fx5_8
+Map	Ch 6: Encoder		FX7 Send Level		fill	cf_c5	ea_snd	ea_fx_fx5_8
+Map	Ch 7: Encoder		FX8 Send Level		fill	cf_c5	ea_snd	ea_fx_fx5_8
+
+Map	Ch 3: Encoder		Channel 5 Width		fill_spread	cf_c5	ea_fdr
+
+
+Map	Func: F1		ea_dyn=ea_dyn_cmp		sf	cf_c6	ea_dyn
+Map	Func: F2		ea_dyn=ea_dyn_gat		sf	cf_c6	ea_dyn
+Map	Mod: Shift		ea_eq_m=ea_eq_m_m1		s_hold	cf_c6	ea_eq	ea_eq_m_off
+Map	Mod: Shift		ea_eq_m=ea_eq_m_off		s_hold	cf_c6	ea_eq	ea_eq_m_m1
+Map	Func: F1		ea_fx=ea_fx_fx5_8		sf	cf_c6	ea_snd
+Map	Func: F2		ea_fx=ea_fx_fx1_4		sf	cf_c6	ea_snd
+
+Map	Ch 1: Scribble Header		Channel 6 Channel Name		rms	cf_c6
+Map	Ch 1: Scribble Color		"header_suffix"			cf_c6
+Map	Ch 2: Scribble Color		"mimic_1"			cf_c6
+Map	Ch 3: Scribble Color		"mimic_1"			cf_c6
+Map	Ch 4: Scribble Color		"mimic_1"			cf_c6
+Map	Ch 5: Scribble Color		"mimic_1"			cf_c6
+Map	Ch 6: Scribble Color		"mimic_1"			cf_c6
+Map	Ch 7: Scribble Color		"mimic_1"			cf_c6
+Map	Ch 8: Scribble Color		"mimic_1"			cf_c6
+Map	Ch 1: Encoder		Channel 6 Pan		rms_pan	cf_c6
+Map	Ch 1: Level Indicator		Channel 6 VU Meter			cf_c6
+Map	Ch 1: Fader		Channel 6 Level			cf_c6
+Map	Ch 1: Solo		Channel 6 Solo			cf_c6
+Map	Ch 1: Mute		Channel 6 Mute			cf_c6
+
+Map	Ch 3: Encoder		Channel 6 Input Gain		bip	cf_c6	ea_inp
+Map	Ch 3: Record		Channel 6 Invert Phase			cf_c6	ea_inp
+Map	Ch 4: Record		Channel 6 Insert Pre			cf_c6	ea_inp
+Map	Ch 5: Record		Channel 6 Dyn Post EQ			cf_c6	ea_inp
+
+Map	Ch 3: Encoder Led Left		Channel 6 Gate Gain Reduction		rms_gatcmb	cf_c6	ea_dyn
+Map	Ch 3: Encoder Led Right		Channel 6 Comp Gain Reduction		rms_gatcmb	cf_c6	ea_dyn
+Map	Ch 3: Record		Channel 6 Key			cf_c6	ea_dyn
+Map	Ch 5: Record		Channel 6 Comp On			cf_c6	ea_dyn	ea_dyn_cmp
+Map	Ch 6: Record		Channel 6 C Peak			cf_c6	ea_dyn	ea_dyn_cmp
+Map	Ch 7: Record		Channel 6 C Fast Atk			cf_c6	ea_dyn	ea_dyn_cmp
+Map	Ch 5: Encoder		Channel 6 C Ratio		fill	cf_c6	ea_dyn	ea_dyn_cmp
+Map	Ch 6: Encoder		Channel 6 C Threshold		fill	cf_c6	ea_dyn	ea_dyn_cmp
+Map	Ch 7: Encoder		Channel 6 C Release		fill	cf_c6	ea_dyn	ea_dyn_cmp
+Map	Ch 5: Record		Channel 6 Gate On			cf_c6	ea_dyn
+Map	Ch 6: Record		Channel 6 Expander			cf_c6	ea_dyn
+Map	Ch 7: Record		Channel 6 G Fast Atk			cf_c6	ea_dyn
+Map	Ch 5: Encoder		Channel 6 G Range		fill	cf_c6	ea_dyn	ea_dyn_gat
+Map	Ch 6: Encoder		Channel 6 G Threshold		fill	cf_c6	ea_dyn	ea_dyn_gat
+Map	Ch 7: Encoder		Channel 6 G Release		fill	cf_c6	ea_dyn	ea_dyn_gat
+Map	Ch 8: Encoder		Channel 6 G Hold		fill	cf_c6	ea_dyn	ea_dyn_gat
+
+Map	Ch 3: Record		Channel 6 HPF On			cf_c6	ea_eq
+Map	Ch 4: Record		Channel 6 LF Bell			cf_c6	ea_eq
+Map	Ch 5: Record		Channel 6 EQ On			cf_c6	ea_eq
+Map	Ch 6: Record		Channel 6 EQ E Mode			cf_c6	ea_eq
+Map	Ch 7: Record		Channel 6 HF Bell			cf_c6	ea_eq
+Map	Ch 8: Record		Channel 6 LPF On			cf_c6	ea_eq
+Map	Ch 3: Encoder		Channel 6 HPF Frequency		fill_mir_rev	cf_c6	ea_eq
+Map	Ch 4: Encoder		Channel 6 LF Frequency		dot_blur	cf_c6	ea_eq
+Map	Ch 5: Encoder		Channel 6 LMF Frequency		dot_blur	cf_c6	ea_eq
+Map	Ch 6: Encoder		Channel 6 HMF Frequency		dot_blur	cf_c6	ea_eq
+Map	Ch 7: Encoder		Channel 6 HF Frequency		dot_blur	cf_c6	ea_eq
+Map	Ch 8: Encoder		Channel 6 LPF Frequency		fill	cf_c6	ea_eq
+Map	Ch 5: Encoder		Channel 6 LMF Q		fill_spread_rev	cf_c6	ea_eq	ea_eq_m_m1
+Map	Ch 6: Encoder		Channel 6 HMF Q		fill_spread_rev	cf_c6	ea_eq	ea_eq_m_m1
+Map	Ch 4: Fader		Channel 6 LF Gain			cf_c6	ea_eq
+Map	Ch 5: Fader		Channel 6 LMF Gain			cf_c6	ea_eq
+Map	Ch 6: Fader		Channel 6 HMF Gain			cf_c6	ea_eq
+Map	Ch 7: Fader		Channel 6 HF Gain			cf_c6	ea_eq
+
+Map	Ch 3: Record		Channel 6 Bypass Insert FX			cf_c6	ea_ins
+
+Map	Ch 4: Encoder		FX1 Send Level		fill	cf_c6	ea_snd	ea_fx_fx1_4
+Map	Ch 5: Encoder		FX2 Send Level		fill	cf_c6	ea_snd	ea_fx_fx1_4
+Map	Ch 6: Encoder		FX3 Send Level		fill	cf_c6	ea_snd	ea_fx_fx1_4
+Map	Ch 7: Encoder		FX4 Send Level		fill	cf_c6	ea_snd	ea_fx_fx1_4
+Map	Ch 4: Encoder		FX5 Send Level		fill	cf_c6	ea_snd	ea_fx_fx5_8
+Map	Ch 5: Encoder		FX6 Send Level		fill	cf_c6	ea_snd	ea_fx_fx5_8
+Map	Ch 6: Encoder		FX7 Send Level		fill	cf_c6	ea_snd	ea_fx_fx5_8
+Map	Ch 7: Encoder		FX8 Send Level		fill	cf_c6	ea_snd	ea_fx_fx5_8
+
+Map	Ch 3: Encoder		Channel 6 Width		fill_spread	cf_c6	ea_fdr
+
+
+Map	Func: F1		ea_dyn=ea_dyn_cmp		sf	cf_c7	ea_dyn
+Map	Func: F2		ea_dyn=ea_dyn_gat		sf	cf_c7	ea_dyn
+Map	Mod: Shift		ea_eq_m=ea_eq_m_m1		s_hold	cf_c7	ea_eq	ea_eq_m_off
+Map	Mod: Shift		ea_eq_m=ea_eq_m_off		s_hold	cf_c7	ea_eq	ea_eq_m_m1
+Map	Func: F1		ea_fx=ea_fx_fx5_8		sf	cf_c7	ea_snd
+Map	Func: F2		ea_fx=ea_fx_fx1_4		sf	cf_c7	ea_snd
+
+Map	Ch 1: Scribble Header		Channel 7 Channel Name		rms	cf_c7
+Map	Ch 1: Scribble Color		"header_suffix"			cf_c7
+Map	Ch 2: Scribble Color		"mimic_1"			cf_c7
+Map	Ch 3: Scribble Color		"mimic_1"			cf_c7
+Map	Ch 4: Scribble Color		"mimic_1"			cf_c7
+Map	Ch 5: Scribble Color		"mimic_1"			cf_c7
+Map	Ch 6: Scribble Color		"mimic_1"			cf_c7
+Map	Ch 7: Scribble Color		"mimic_1"			cf_c7
+Map	Ch 8: Scribble Color		"mimic_1"			cf_c7
+Map	Ch 1: Encoder		Channel 7 Pan		rms_pan	cf_c7
+Map	Ch 1: Level Indicator		Channel 7 VU Meter			cf_c7
+Map	Ch 1: Fader		Channel 7 Level			cf_c7
+Map	Ch 1: Solo		Channel 7 Solo			cf_c7
+Map	Ch 1: Mute		Channel 7 Mute			cf_c7
+
+Map	Ch 3: Encoder		Channel 7 Input Gain		bip	cf_c7	ea_inp
+Map	Ch 3: Record		Channel 7 Invert Phase			cf_c7	ea_inp
+Map	Ch 4: Record		Channel 7 Insert Pre			cf_c7	ea_inp
+Map	Ch 5: Record		Channel 7 Dyn Post EQ			cf_c7	ea_inp
+
+Map	Ch 3: Encoder Led Left		Channel 7 Gate Gain Reduction		rms_gatcmb	cf_c7	ea_dyn
+Map	Ch 3: Encoder Led Right		Channel 7 Comp Gain Reduction		rms_gatcmb	cf_c7	ea_dyn
+Map	Ch 3: Record		Channel 7 Key			cf_c7	ea_dyn
+Map	Ch 5: Record		Channel 7 Comp On			cf_c7	ea_dyn	ea_dyn_cmp
+Map	Ch 6: Record		Channel 7 C Peak			cf_c7	ea_dyn	ea_dyn_cmp
+Map	Ch 7: Record		Channel 7 C Fast Atk			cf_c7	ea_dyn	ea_dyn_cmp
+Map	Ch 5: Encoder		Channel 7 C Ratio		fill	cf_c7	ea_dyn	ea_dyn_cmp
+Map	Ch 6: Encoder		Channel 7 C Threshold		fill	cf_c7	ea_dyn	ea_dyn_cmp
+Map	Ch 7: Encoder		Channel 7 C Release		fill	cf_c7	ea_dyn	ea_dyn_cmp
+Map	Ch 5: Record		Channel 7 Gate On			cf_c7	ea_dyn
+Map	Ch 6: Record		Channel 7 Expander			cf_c7	ea_dyn
+Map	Ch 7: Record		Channel 7 G Fast Atk			cf_c7	ea_dyn
+Map	Ch 5: Encoder		Channel 7 G Range		fill	cf_c7	ea_dyn	ea_dyn_gat
+Map	Ch 6: Encoder		Channel 7 G Threshold		fill	cf_c7	ea_dyn	ea_dyn_gat
+Map	Ch 7: Encoder		Channel 7 G Release		fill	cf_c7	ea_dyn	ea_dyn_gat
+Map	Ch 8: Encoder		Channel 7 G Hold		fill	cf_c7	ea_dyn	ea_dyn_gat
+
+Map	Ch 3: Record		Channel 7 HPF On			cf_c7	ea_eq
+Map	Ch 4: Record		Channel 7 LF Bell			cf_c7	ea_eq
+Map	Ch 5: Record		Channel 7 EQ On			cf_c7	ea_eq
+Map	Ch 6: Record		Channel 7 EQ E Mode			cf_c7	ea_eq
+Map	Ch 7: Record		Channel 7 HF Bell			cf_c7	ea_eq
+Map	Ch 8: Record		Channel 7 LPF On			cf_c7	ea_eq
+Map	Ch 3: Encoder		Channel 7 HPF Frequency		fill_mir_rev	cf_c7	ea_eq
+Map	Ch 4: Encoder		Channel 7 LF Frequency		dot_blur	cf_c7	ea_eq
+Map	Ch 5: Encoder		Channel 7 LMF Frequency		dot_blur	cf_c7	ea_eq
+Map	Ch 6: Encoder		Channel 7 HMF Frequency		dot_blur	cf_c7	ea_eq
+Map	Ch 7: Encoder		Channel 7 HF Frequency		dot_blur	cf_c7	ea_eq
+Map	Ch 8: Encoder		Channel 7 LPF Frequency		fill	cf_c7	ea_eq
+Map	Ch 5: Encoder		Channel 7 LMF Q		fill_spread_rev	cf_c7	ea_eq	ea_eq_m_m1
+Map	Ch 6: Encoder		Channel 7 HMF Q		fill_spread_rev	cf_c7	ea_eq	ea_eq_m_m1
+Map	Ch 4: Fader		Channel 7 LF Gain			cf_c7	ea_eq
+Map	Ch 5: Fader		Channel 7 LMF Gain			cf_c7	ea_eq
+Map	Ch 6: Fader		Channel 7 HMF Gain			cf_c7	ea_eq
+Map	Ch 7: Fader		Channel 7 HF Gain			cf_c7	ea_eq
+
+Map	Ch 3: Record		Channel 7 Bypass Insert FX			cf_c7	ea_ins
+
+Map	Ch 4: Encoder		FX1 Send Level		fill	cf_c7	ea_snd	ea_fx_fx1_4
+Map	Ch 5: Encoder		FX2 Send Level		fill	cf_c7	ea_snd	ea_fx_fx1_4
+Map	Ch 6: Encoder		FX3 Send Level		fill	cf_c7	ea_snd	ea_fx_fx1_4
+Map	Ch 7: Encoder		FX4 Send Level		fill	cf_c7	ea_snd	ea_fx_fx1_4
+Map	Ch 4: Encoder		FX5 Send Level		fill	cf_c7	ea_snd	ea_fx_fx5_8
+Map	Ch 5: Encoder		FX6 Send Level		fill	cf_c7	ea_snd	ea_fx_fx5_8
+Map	Ch 6: Encoder		FX7 Send Level		fill	cf_c7	ea_snd	ea_fx_fx5_8
+Map	Ch 7: Encoder		FX8 Send Level		fill	cf_c7	ea_snd	ea_fx_fx5_8
+
+Map	Ch 3: Encoder		Channel 7 Width		fill_spread	cf_c7	ea_fdr
+
+
+Map	Func: F1		ea_dyn=ea_dyn_cmp		sf	cf_c8	ea_dyn
+Map	Func: F2		ea_dyn=ea_dyn_gat		sf	cf_c8	ea_dyn
+Map	Mod: Shift		ea_eq_m=ea_eq_m_m1		s_hold	cf_c8	ea_eq	ea_eq_m_off
+Map	Mod: Shift		ea_eq_m=ea_eq_m_off		s_hold	cf_c8	ea_eq	ea_eq_m_m1
+Map	Func: F1		ea_fx=ea_fx_fx5_8		sf	cf_c8	ea_snd
+Map	Func: F2		ea_fx=ea_fx_fx1_4		sf	cf_c8	ea_snd
+
+Map	Ch 1: Scribble Header		Channel 8 Channel Name		rms	cf_c8
+Map	Ch 1: Scribble Color		"header_suffix"			cf_c8
+Map	Ch 2: Scribble Color		"mimic_1"			cf_c8
+Map	Ch 3: Scribble Color		"mimic_1"			cf_c8
+Map	Ch 4: Scribble Color		"mimic_1"			cf_c8
+Map	Ch 5: Scribble Color		"mimic_1"			cf_c8
+Map	Ch 6: Scribble Color		"mimic_1"			cf_c8
+Map	Ch 7: Scribble Color		"mimic_1"			cf_c8
+Map	Ch 8: Scribble Color		"mimic_1"			cf_c8
+Map	Ch 1: Encoder		Channel 8 Pan		rms_pan	cf_c8
+Map	Ch 1: Level Indicator		Channel 8 VU Meter			cf_c8
+Map	Ch 1: Fader		Channel 8 Level			cf_c8
+Map	Ch 1: Solo		Channel 8 Solo			cf_c8
+Map	Ch 1: Mute		Channel 8 Mute			cf_c8
+
+Map	Ch 3: Encoder		Channel 8 Input Gain		bip	cf_c8	ea_inp
+Map	Ch 3: Record		Channel 8 Invert Phase			cf_c8	ea_inp
+Map	Ch 4: Record		Channel 8 Insert Pre			cf_c8	ea_inp
+Map	Ch 5: Record		Channel 8 Dyn Post EQ			cf_c8	ea_inp
+
+Map	Ch 3: Encoder Led Left		Channel 8 Gate Gain Reduction		rms_gatcmb	cf_c8	ea_dyn
+Map	Ch 3: Encoder Led Right		Channel 8 Comp Gain Reduction		rms_gatcmb	cf_c8	ea_dyn
+Map	Ch 3: Record		Channel 8 Key			cf_c8	ea_dyn
+Map	Ch 5: Record		Channel 8 Comp On			cf_c8	ea_dyn	ea_dyn_cmp
+Map	Ch 6: Record		Channel 8 C Peak			cf_c8	ea_dyn	ea_dyn_cmp
+Map	Ch 7: Record		Channel 8 C Fast Atk			cf_c8	ea_dyn	ea_dyn_cmp
+Map	Ch 5: Encoder		Channel 8 C Ratio		fill	cf_c8	ea_dyn	ea_dyn_cmp
+Map	Ch 6: Encoder		Channel 8 C Threshold		fill	cf_c8	ea_dyn	ea_dyn_cmp
+Map	Ch 7: Encoder		Channel 8 C Release		fill	cf_c8	ea_dyn	ea_dyn_cmp
+Map	Ch 5: Record		Channel 8 Gate On			cf_c8	ea_dyn
+Map	Ch 6: Record		Channel 8 Expander			cf_c8	ea_dyn
+Map	Ch 7: Record		Channel 8 G Fast Atk			cf_c8	ea_dyn
+Map	Ch 5: Encoder		Channel 8 G Range		fill	cf_c8	ea_dyn	ea_dyn_gat
+Map	Ch 6: Encoder		Channel 8 G Threshold		fill	cf_c8	ea_dyn	ea_dyn_gat
+Map	Ch 7: Encoder		Channel 8 G Release		fill	cf_c8	ea_dyn	ea_dyn_gat
+Map	Ch 8: Encoder		Channel 8 G Hold		fill	cf_c8	ea_dyn	ea_dyn_gat
+
+Map	Ch 3: Record		Channel 8 HPF On			cf_c8	ea_eq
+Map	Ch 4: Record		Channel 8 LF Bell			cf_c8	ea_eq
+Map	Ch 5: Record		Channel 8 EQ On			cf_c8	ea_eq
+Map	Ch 6: Record		Channel 8 EQ E Mode			cf_c8	ea_eq
+Map	Ch 7: Record		Channel 8 HF Bell			cf_c8	ea_eq
+Map	Ch 8: Record		Channel 8 LPF On			cf_c8	ea_eq
+Map	Ch 3: Encoder		Channel 8 HPF Frequency		fill_mir_rev	cf_c8	ea_eq
+Map	Ch 4: Encoder		Channel 8 LF Frequency		dot_blur	cf_c8	ea_eq
+Map	Ch 5: Encoder		Channel 8 LMF Frequency		dot_blur	cf_c8	ea_eq
+Map	Ch 6: Encoder		Channel 8 HMF Frequency		dot_blur	cf_c8	ea_eq
+Map	Ch 7: Encoder		Channel 8 HF Frequency		dot_blur	cf_c8	ea_eq
+Map	Ch 8: Encoder		Channel 8 LPF Frequency		fill	cf_c8	ea_eq
+Map	Ch 5: Encoder		Channel 8 LMF Q		fill_spread_rev	cf_c8	ea_eq	ea_eq_m_m1
+Map	Ch 6: Encoder		Channel 8 HMF Q		fill_spread_rev	cf_c8	ea_eq	ea_eq_m_m1
+Map	Ch 4: Fader		Channel 8 LF Gain			cf_c8	ea_eq
+Map	Ch 5: Fader		Channel 8 LMF Gain			cf_c8	ea_eq
+Map	Ch 6: Fader		Channel 8 HMF Gain			cf_c8	ea_eq
+Map	Ch 7: Fader		Channel 8 HF Gain			cf_c8	ea_eq
+
+Map	Ch 3: Record		Channel 8 Bypass Insert FX			cf_c8	ea_ins
+
+Map	Ch 4: Encoder		FX1 Send Level		fill	cf_c8	ea_snd	ea_fx_fx1_4
+Map	Ch 5: Encoder		FX2 Send Level		fill	cf_c8	ea_snd	ea_fx_fx1_4
+Map	Ch 6: Encoder		FX3 Send Level		fill	cf_c8	ea_snd	ea_fx_fx1_4
+Map	Ch 7: Encoder		FX4 Send Level		fill	cf_c8	ea_snd	ea_fx_fx1_4
+Map	Ch 4: Encoder		FX5 Send Level		fill	cf_c8	ea_snd	ea_fx_fx5_8
+Map	Ch 5: Encoder		FX6 Send Level		fill	cf_c8	ea_snd	ea_fx_fx5_8
+Map	Ch 6: Encoder		FX7 Send Level		fill	cf_c8	ea_snd	ea_fx_fx5_8
+Map	Ch 7: Encoder		FX8 Send Level		fill	cf_c8	ea_snd	ea_fx_fx5_8
+
+Map	Ch 3: Encoder		Channel 8 Width		fill_spread	cf_c8	ea_fdr
+
+
+Map	Func: F1		ea_fx=ea_fx_fx5_8		sf	cf_c9	ea_mas_snd
+Map	Func: F2		ea_fx=ea_fx_fx1_4		sf	cf_c9	ea_mas_snd
+Map	Func: F1		ea_fx=ea_fx_fx5_8		sf	cf_c9	ea_mas_rtn
+Map	Func: F2		ea_fx=ea_fx_fx1_4		sf	cf_c9	ea_mas_rtn
+
+Map	Ch 1: Scribble Header		"Master"		rms	cf_c9
+Map	Ch 1: Scribble Color		"white"			cf_c9
+Map	Ch 2: Scribble Color		"mimic_1"			cf_c9
+Map	Ch 3: Scribble Color		"mimic_1"			cf_c9
+Map	Ch 4: Scribble Color		"mimic_1"			cf_c9
+Map	Ch 5: Scribble Color		"mimic_1"			cf_c9
+Map	Ch 6: Scribble Color		"mimic_1"			cf_c9
+Map	Ch 7: Scribble Color		"mimic_1"			cf_c9
+Map	Ch 8: Scribble Color		"mimic_1"			cf_c9
+Map	Ch 1: Encoder		Ctrl Room Level		fill	cf_c9
+Map	Ch 1: Fader		Master Level			cf_c9
+Map	Ch 1: Level Indicator		Master Level Meter Left			cf_c9
+
+Map	Ch 3: Record		Compressor On			cf_c9	ea_mas_cmp
+Map	Ch 7: Record		Key On			cf_c9	ea_mas_cmp
+Map	Ch 3: Encoder		Threshold		fill	cf_c9	ea_mas_cmp
+Map	Ch 4: Encoder		Ratio		fill	cf_c9	ea_mas_cmp
+Map	Ch 5: Encoder		Attack		fill	cf_c9	ea_mas_cmp
+Map	Ch 6: Encoder		Release		fill	cf_c9	ea_mas_cmp
+Map	Ch 7: Encoder		Make-Up Gain		fill	cf_c9	ea_mas_cmp
+
+Map	Ch 4: Level Indicator		FX1 Send Level Meter			cf_c9	ea_mas_snd	ea_fx_fx1_4
+Map	Ch 5: Level Indicator		FX2 Send Level Meter			cf_c9	ea_mas_snd	ea_fx_fx1_4
+Map	Ch 6: Level Indicator		FX3 Send Level Meter			cf_c9	ea_mas_snd	ea_fx_fx1_4
+Map	Ch 7: Level Indicator		FX4 Send Level Meter			cf_c9	ea_mas_snd	ea_fx_fx1_4
+Map	Ch 4: Level Indicator		FX5 Send Level Meter			cf_c9	ea_mas_snd	ea_fx_fx5_8
+Map	Ch 5: Level Indicator		FX6 Send Level Meter			cf_c9	ea_mas_snd	ea_fx_fx5_8
+Map	Ch 6: Level Indicator		FX7 Send Level Meter			cf_c9	ea_mas_snd	ea_fx_fx5_8
+Map	Ch 7: Level Indicator		FX8 Send Level Meter			cf_c9	ea_mas_snd	ea_fx_fx5_8
+Map	Ch 4: Fader		FX1 Send Level			cf_c9	ea_mas_snd	ea_fx_fx1_4
+Map	Ch 5: Fader		FX2 Send Level			cf_c9	ea_mas_snd	ea_fx_fx1_4
+Map	Ch 6: Fader		FX3 Send Level			cf_c9	ea_mas_snd	ea_fx_fx1_4
+Map	Ch 7: Fader		FX4 Send Level			cf_c9	ea_mas_snd	ea_fx_fx1_4
+Map	Ch 4: Fader		FX5 Send Level			cf_c9	ea_mas_snd	ea_fx_fx5_8
+Map	Ch 5: Fader		FX6 Send Level			cf_c9	ea_mas_snd	ea_fx_fx5_8
+Map	Ch 6: Fader		FX7 Send Level			cf_c9	ea_mas_snd	ea_fx_fx5_8
+Map	Ch 7: Fader		FX8 Send Level			cf_c9	ea_mas_snd	ea_fx_fx5_8
+
+Map	Ch 3: Record		Bypass Insert FX			cf_c9	ea_mas_ins
+
+Map	Ch 4: Level Indicator		FX1 Return Level Meter			cf_c9	ea_mas_rtn	ea_fx_fx1_4
+Map	Ch 5: Level Indicator		FX2 Return Level Meter			cf_c9	ea_mas_rtn	ea_fx_fx1_4
+Map	Ch 6: Level Indicator		FX3 Return Level Meter			cf_c9	ea_mas_rtn	ea_fx_fx1_4
+Map	Ch 7: Level Indicator		FX4 Return Level Meter			cf_c9	ea_mas_rtn	ea_fx_fx1_4
+Map	Ch 4: Level Indicator		FX5 Return Level Meter			cf_c9	ea_mas_rtn	ea_fx_fx5_8
+Map	Ch 5: Level Indicator		FX6 Return Level Meter			cf_c9	ea_mas_rtn	ea_fx_fx5_8
+Map	Ch 6: Level Indicator		FX7 Return Level Meter			cf_c9	ea_mas_rtn	ea_fx_fx5_8
+Map	Ch 7: Level Indicator		FX8 Return Level Meter			cf_c9	ea_mas_rtn	ea_fx_fx5_8
+Map	Ch 4: Fader		FX1 Return Level			cf_c9	ea_mas_rtn	ea_fx_fx1_4
+Map	Ch 5: Fader		FX2 Return Level			cf_c9	ea_mas_rtn	ea_fx_fx1_4
+Map	Ch 6: Fader		FX3 Return Level			cf_c9	ea_mas_rtn	ea_fx_fx1_4
+Map	Ch 7: Fader		FX4 Return Level			cf_c9	ea_mas_rtn	ea_fx_fx1_4
+Map	Ch 4: Fader		FX5 Return Level			cf_c9	ea_mas_rtn	ea_fx_fx5_8
+Map	Ch 5: Fader		FX6 Return Level			cf_c9	ea_mas_rtn	ea_fx_fx5_8
+Map	Ch 6: Fader		FX7 Return Level			cf_c9	ea_mas_rtn	ea_fx_fx5_8
+Map	Ch 7: Fader		FX8 Return Level			cf_c9	ea_mas_rtn	ea_fx_fx5_8
+Map	Ch 4: Encoder		FX1 Pan		bip	cf_c9	ea_mas_rtn	ea_fx_fx1_4
+Map	Ch 5: Encoder		FX2 Pan		bip	cf_c9	ea_mas_rtn	ea_fx_fx1_4
+Map	Ch 6: Encoder		FX3 Pan		bip	cf_c9	ea_mas_rtn	ea_fx_fx1_4
+Map	Ch 7: Encoder		FX4 Pan		bip	cf_c9	ea_mas_rtn	ea_fx_fx1_4
+Map	Ch 4: Encoder		FX5 Pan		bip	cf_c9	ea_mas_rtn	ea_fx_fx5_8
+Map	Ch 5: Encoder		FX6 Pan		bip	cf_c9	ea_mas_rtn	ea_fx_fx5_8
+Map	Ch 6: Encoder		FX7 Pan		bip	cf_c9	ea_mas_rtn	ea_fx_fx5_8
+Map	Ch 7: Encoder		FX8 Pan		bip	cf_c9	ea_mas_rtn	ea_fx_fx5_8
+Map	Ch 4: Record		FX1 Mute			cf_c9	ea_mas_rtn	ea_fx_fx1_4
+Map	Ch 5: Record		FX2 Mute			cf_c9	ea_mas_rtn	ea_fx_fx1_4
+Map	Ch 6: Record		FX3 Mute			cf_c9	ea_mas_rtn	ea_fx_fx1_4
+Map	Ch 7: Record		FX4 Mute			cf_c9	ea_mas_rtn	ea_fx_fx1_4
+Map	Ch 4: Record		FX5 Mute			cf_c9	ea_mas_rtn	ea_fx_fx5_8
+Map	Ch 5: Record		FX6 Mute			cf_c9	ea_mas_rtn	ea_fx_fx5_8
+Map	Ch 6: Record		FX7 Mute			cf_c9	ea_mas_rtn	ea_fx_fx5_8
+Map	Ch 7: Record		FX8 Mute			cf_c9	ea_mas_rtn	ea_fx_fx5_8
+
+
